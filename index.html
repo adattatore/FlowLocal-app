@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FlowLocal">
@@ -88,8 +90,18 @@
     }
 
     @keyframes pulse-orb {
-      0%, 100% { transform: scale(1); opacity: 0.95; }
-      50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 10px #38BDF8); }
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.95;
+      }
+
+      50% {
+        transform: scale(1.08);
+        opacity: 1;
+        filter: drop-shadow(0 0 10px #38BDF8);
+      }
     }
 
     .brand-title {
@@ -150,6 +162,7 @@
       font-size: 15px;
       cursor: pointer;
     }
+
     .icon-btn:active {
       transform: scale(0.95);
       background: var(--bg-card-hover);
@@ -167,14 +180,22 @@
     .tab-view {
       display: none;
     }
+
     .tab-view.active {
       display: block;
       animation: fadeIn 0.2s ease-in;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* CARD STYLING */
@@ -218,7 +239,9 @@
       margin-bottom: 6px;
     }
 
-    input[type="text"], input[type="password"], select {
+    input[type="text"],
+    input[type="password"],
+    select {
       width: 100%;
       background: var(--bg-input);
       border: 1px solid var(--border-color);
@@ -230,7 +253,9 @@
       transition: border-color 0.15s ease;
       user-select: text;
     }
-    input:focus, select:focus {
+
+    input:focus,
+    select:focus {
       border-color: var(--border-focus);
     }
 
@@ -257,6 +282,7 @@
       cursor: pointer;
       transition: all 0.15s ease;
     }
+
     .seg-btn.active {
       background: var(--primary);
       color: #FFFFFF;
@@ -281,6 +307,7 @@
       border-radius: 16px;
       cursor: pointer;
     }
+
     .chip.active {
       background: rgba(2, 132, 199, 0.25);
       color: var(--accent-cyan);
@@ -302,6 +329,7 @@
       gap: 8px;
       transition: transform 0.1s ease, background 0.15s ease;
     }
+
     .btn:active {
       transform: scale(0.98);
     }
@@ -360,7 +388,9 @@
     }
 
     @keyframes blink-rec {
-      50% { opacity: 0.6; }
+      50% {
+        opacity: 0.6;
+      }
     }
 
     .rec-pulse-btn {
@@ -379,15 +409,24 @@
       box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
       transition: transform 0.15s ease;
     }
+
     .rec-pulse-btn.active {
       animation: pulse-ring 1.5s infinite;
       background: #EF4444;
     }
 
     @keyframes pulse-ring {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-      70% { box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      }
+
+      70% {
+        box-shadow: 0 0 0 16px rgba(239, 68, 68, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
     }
 
     .rec-actions {
@@ -440,7 +479,10 @@
       margin-bottom: 12px;
       -webkit-overflow-scrolling: touch;
     }
-    .filter-pills::-webkit-scrollbar { display: none; }
+
+    .filter-pills::-webkit-scrollbar {
+      display: none;
+    }
 
     .fpill {
       white-space: nowrap;
@@ -453,6 +495,7 @@
       color: var(--text-muted);
       cursor: pointer;
     }
+
     .fpill.active {
       background: var(--primary);
       border-color: var(--primary);
@@ -469,6 +512,7 @@
       cursor: pointer;
       transition: background 0.15s ease;
     }
+
     .note-card:active {
       background: var(--bg-card-hover);
     }
@@ -488,9 +532,24 @@
       text-transform: uppercase;
       letter-spacing: 0.3px;
     }
-    .badge-profile-alessandro { background: rgba(56, 189, 248, 0.18); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.4); }
-    .badge-profile-lei { background: rgba(168, 85, 247, 0.18); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.4); }
-    .badge-subject { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    .badge-profile-alessandro {
+      background: rgba(56, 189, 248, 0.18);
+      color: #38BDF8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .badge-profile-lei {
+      background: rgba(168, 85, 247, 0.18);
+      color: #C084FC;
+      border: 1px solid rgba(168, 85, 247, 0.4);
+    }
+
+    .badge-subject {
+      background: rgba(245, 158, 11, 0.15);
+      color: #FBBF24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
 
     .note-date {
       font-size: 11px;
@@ -528,6 +587,7 @@
       padding: calc(var(--safe-top) + 12px) 12px calc(var(--safe-bottom) + 12px) 12px;
       overflow-y: auto;
     }
+
     .detail-overlay.active {
       display: block;
     }
@@ -563,7 +623,9 @@
       color: #E2E8F0;
     }
 
-    .detail-content h1, .detail-content h2, .detail-content h3 {
+    .detail-content h1,
+    .detail-content h2,
+    .detail-content h3 {
       color: #F8FAFC;
       margin-top: 18px;
       margin-bottom: 8px;
@@ -573,7 +635,8 @@
       margin-bottom: 12px;
     }
 
-    .detail-content ul, .detail-content ol {
+    .detail-content ul,
+    .detail-content ol {
       margin-left: 20px;
       margin-bottom: 12px;
     }
@@ -618,6 +681,7 @@
       position: relative;
       transition: transform 0.15s ease, border-color 0.15s ease;
     }
+
     .fc-box:active {
       transform: scale(0.99);
     }
@@ -653,6 +717,7 @@
       padding-top: 12px;
       border-top: 1px dashed var(--border-color);
     }
+
     .fc-box.flipped .fc-answer {
       display: block;
       animation: fadeIn 0.2s ease;
@@ -683,6 +748,7 @@
       margin-top: 10px;
       display: none;
     }
+
     .progress-bar-fill {
       width: 0%;
       height: 100%;
@@ -720,9 +786,11 @@
       gap: 3px;
       transition: color 0.15s ease;
     }
+
     .nav-item.active {
       color: var(--accent-cyan);
     }
+
     .nav-item svg {
       width: 22px;
       height: 22px;
@@ -748,6 +816,7 @@
       pointer-events: none;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
+
     .toast.show {
       transform: translateX(-50%) translateY(0);
       opacity: 1;
@@ -759,6 +828,7 @@
       padding: 40px 16px;
       color: var(--text-dim);
     }
+
     .empty-state-icon {
       font-size: 42px;
       margin-bottom: 12px;
@@ -766,6 +836,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <!-- HEADER -->
@@ -801,7 +872,8 @@
         <div class="form-group">
           <label>Profilo Studente</label>
           <div class="segmented-control">
-            <button type="button" class="seg-btn active" onclick="app.setProfile('Alessandro', this)">Alessandro</button>
+            <button type="button" class="seg-btn active"
+              onclick="app.setProfile('Alessandro', this)">Alessandro</button>
             <button type="button" class="seg-btn" onclick="app.setProfile('Lei', this)">Lei</button>
           </div>
         </div>
@@ -809,9 +881,11 @@
         <!-- Materia / Corso -->
         <div class="form-group">
           <label>Materia / Corso</label>
-          <input type="text" id="subjectInput" placeholder="Es. Diritto Sanitario, Fisica 2..." value="Diritto Sanitario">
+          <input type="text" id="subjectInput" placeholder="Es. Diritto Sanitario, Fisica 2..."
+            value="Diritto Sanitario">
           <div class="chip-container">
-            <span class="chip active" onclick="app.selectSubjectChip('Diritto Sanitario', this)">Diritto Sanitario</span>
+            <span class="chip active" onclick="app.selectSubjectChip('Diritto Sanitario', this)">Diritto
+              Sanitario</span>
             <span class="chip" onclick="app.selectSubjectChip('Fisica 2', this)">Fisica 2</span>
             <span class="chip" onclick="app.selectSubjectChip('Analisi Matematica', this)">Analisi</span>
             <span class="chip" onclick="app.selectSubjectChip('Anatomia Clinica', this)">Anatomia</span>
@@ -834,7 +908,8 @@
           </div>
 
           <div id="recActionsRow" class="rec-actions" style="display: none;">
-            <button class="btn btn-outline" style="width: auto; padding: 6px 14px; font-size: 12px;" onclick="app.cancelRecording()">✕ Scarta</button>
+            <button class="btn btn-outline" style="width: auto; padding: 6px 14px; font-size: 12px;"
+              onclick="app.cancelRecording()">✕ Scarta</button>
           </div>
 
           <audio id="audioPreview" controls style="display: none;"></audio>
@@ -842,7 +917,8 @@
 
         <!-- OPPURE CARICA FILE ESISTENTE -->
         <div class="file-drop-area">
-          <input type="file" id="audioFileInput" accept="audio/*,video/*,.m4a,.mp3,.wav,.mp4,.ogg,.webm,.aac" onchange="app.onAudioFileSelected(event)">
+          <input type="file" id="audioFileInput" accept="audio/*,video/*,.m4a,.mp3,.wav,.mp4,.ogg,.webm,.aac"
+            onchange="app.onAudioFileSelected(event)">
           <div style="font-size: 24px; margin-bottom: 4px;">📂</div>
           <div id="fileUploadLabel" style="font-size: 13px; font-weight: 600; color: #FFFFFF;">
             Oppure tocca qui per scegliere un file audio dal telefono
@@ -866,7 +942,8 @@
     <!-- TAB 2: LIBRERIA SBOBINE & NOTE -->
     <section id="tab-library" class="tab-view">
       <div class="search-row">
-        <input type="text" id="librarySearchInput" placeholder="🔍 Cerca nelle sbobine e appunti…" oninput="app.renderLibrary()">
+        <input type="text" id="librarySearchInput" placeholder="🔍 Cerca nelle sbobine e appunti…"
+          oninput="app.renderLibrary()">
         <button class="icon-btn" onclick="app.syncFromDrive()" title="Sincronizza subito">🔄</button>
       </div>
 
@@ -904,18 +981,22 @@
           <div class="card-title">🔑 Integrazione Google Drive API</div>
         </div>
         <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
-          Collega il tuo Google Drive per sincronizzare automaticamente la cartella <code>FlowLocal_Sync</code> senza aprire l'app di Drive.
+          Collega il tuo Google Drive per sincronizzare automaticamente la cartella <code>FlowLocal_Sync</code> senza
+          aprire l'app di Drive.
         </p>
 
         <div class="form-group">
           <label>Google OAuth Client ID</label>
-          <input type="text" id="googleClientIdInput" placeholder="7123456789-xxxx.apps.googleusercontent.com" onchange="app.saveGoogleClientId()">
+          <input type="text" id="googleClientIdInput" placeholder="7123456789-xxxx.apps.googleusercontent.com"
+            onchange="app.saveGoogleClientId()" onblur="app.saveGoogleClientId()">
           <div style="font-size: 11px; color: var(--text-dim); margin-top: 5px; line-height: 1.4;">
-            Crea un <em>Client ID applicazione Web</em> su Google Cloud Console (Aggiungi le origini JavaScript autorizzate es. <code>http://localhost</code> o il tuo dominio PWA).
+            Crea un <em>Client ID applicazione Web</em> su Google Cloud Console (Aggiungi le origini JavaScript
+            autorizzate es. <code>http://localhost</code> o il tuo dominio PWA).
           </div>
         </div>
 
-        <button id="authDriveBtn" class="btn btn-success" onclick="app.connectGoogleDrive()" style="margin-bottom: 10px;">
+        <button id="authDriveBtn" class="btn btn-success" onclick="app.connectGoogleDrive()"
+          style="margin-bottom: 10px;">
           🔑 Collega Google Drive
         </button>
 
@@ -926,9 +1007,11 @@
         <div style="border-top: 1px solid var(--border-color); padding-top: 14px; margin-top: 14px;">
           <div class="card-title" style="font-size: 14px; margin-bottom: 8px;">📁 Riserva Offline / Import Manuale</div>
           <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
-            Puoi caricare manualmente il file <code>outbox_study/library.json</code> esportato dal PC senza account Google.
+            Puoi caricare manualmente il file <code>outbox_study/library.json</code> esportato dal PC senza account
+            Google.
           </p>
-          <input type="file" id="manualJsonInput" accept=".json" onchange="app.importManualJson(event)" style="display: none;">
+          <input type="file" id="manualJsonInput" accept=".json" onchange="app.importManualJson(event)"
+            style="display: none;">
           <button class="btn btn-outline" onclick="document.getElementById('manualJsonInput').click()">
             📥 Carica library.json dal telefono
           </button>
@@ -940,7 +1023,8 @@
         <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;" id="storageStats">
           Archivio locale attivo per visualizzazione in aula.
         </div>
-        <button class="btn btn-outline" style="border-color: #3F2A2E; color: #F87171;" onclick="app.clearOfflineCache()">
+        <button class="btn btn-outline" style="border-color: #3F2A2E; color: #F87171;"
+          onclick="app.clearOfflineCache()">
           🗑️ Svuota Cache Offline
         </button>
       </div>
@@ -966,19 +1050,32 @@
   <!-- BOTTOM NAVIGATION BAR -->
   <nav class="bottom-nav">
     <div class="nav-item active" onclick="app.showTab('upload')">
-      <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+      <svg viewBox="0 0 24 24">
+        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+        <path
+          d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+      </svg>
       <span>Invia Audio</span>
     </div>
     <div class="nav-item" onclick="app.showTab('library')">
-      <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z" />
+      </svg>
       <span>Libreria</span>
     </div>
     <div class="nav-item" onclick="app.showTab('flashcards')">
-      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+      </svg>
       <span>Flashcard</span>
     </div>
     <div class="nav-item" onclick="app.showTab('settings')">
-      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+      </svg>
       <span>Setup</span>
     </div>
   </nav>
@@ -1050,7 +1147,7 @@
       fcFilterProfile: 'ALL',
       currentFcIndex: 0,
       activeFlashcards: [],
-      
+
       // Audio Recording State
       mediaRecorder: null,
       recordedChunks: [],
@@ -1062,15 +1159,16 @@
 
       // Google Drive API State
       tokenClient: null,
+      initializedClientId: null,
       accessToken: localStorage.getItem('flowlocal_drive_token') || null,
       tokenExpiry: parseInt(localStorage.getItem('flowlocal_drive_token_expires') || '0', 10),
 
-      init: async function() {
+      init: async function () {
         this.updateOnlineStatus();
         window.addEventListener('online', () => this.updateOnlineStatus());
         window.addEventListener('offline', () => this.updateOnlineStatus());
 
-        const savedClientId = localStorage.getItem('flowlocal_google_client_id');
+        const savedClientId = (localStorage.getItem('flowlocal_google_client_id') || '').trim();
         if (savedClientId) {
           const el = document.getElementById('googleClientIdInput');
           if (el) el.value = savedClientId;
@@ -1090,7 +1188,7 @@
         }
       },
 
-      showToast: function(msg) {
+      showToast: function (msg) {
         const t = document.getElementById('toast');
         if (!t) return;
         t.textContent = msg;
@@ -1098,7 +1196,7 @@
         setTimeout(() => t.classList.remove('show'), 2800);
       },
 
-      updateOnlineStatus: function() {
+      updateOnlineStatus: function () {
         const badge = document.getElementById('syncStatusBadge');
         const text = document.getElementById('syncStatusText');
         if (!badge || !text) return;
@@ -1111,7 +1209,7 @@
         }
       },
 
-      showTab: function(tabId) {
+      showTab: function (tabId) {
         document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
@@ -1127,13 +1225,13 @@
         if (tabId === 'flashcards') this.renderFlashcards();
       },
 
-      setProfile: function(name, btn) {
+      setProfile: function (name, btn) {
         this.profile = name;
         document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
       },
 
-      selectSubjectChip: function(subject, chip) {
+      selectSubjectChip: function (subject, chip) {
         document.getElementById('subjectInput').value = subject;
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
@@ -1142,7 +1240,7 @@
       // -----------------------------------------------------------------------
       // AUDIO RECORDING (MediaRecorder)
       // -----------------------------------------------------------------------
-      toggleRecording: async function() {
+      toggleRecording: async function () {
         if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
           this.stopRecording();
         } else {
@@ -1150,11 +1248,11 @@
         }
       },
 
-      startRecording: async function() {
+      startRecording: async function () {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           this.recordedChunks = [];
-          
+
           let mime = 'audio/webm';
           if (MediaRecorder.isTypeSupported('audio/mp4')) mime = 'audio/mp4';
           else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mime = 'audio/webm;codecs=opus';
@@ -1176,7 +1274,7 @@
             const ext = mime.includes('mp4') ? 'm4a' : 'webm';
             const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
             this.selectedFileName = `registrazione_${this.profile.toLowerCase()}_${timestamp}.${ext}`;
-            
+
             document.getElementById('recHint').textContent = `Audio registrato (${(this.recordedBlob.size / 1024 / 1024).toFixed(2)} MB)`;
             document.getElementById('recActionsRow').style.display = 'flex';
           };
@@ -1200,7 +1298,7 @@
         }
       },
 
-      stopRecording: function() {
+      stopRecording: function () {
         if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
           this.mediaRecorder.stop();
         }
@@ -1209,7 +1307,7 @@
         document.getElementById('recTimer').classList.remove('recording');
       },
 
-      cancelRecording: function() {
+      cancelRecording: function () {
         this.stopRecording();
         this.recordedChunks = [];
         this.recordedBlob = null;
@@ -1221,7 +1319,7 @@
         document.getElementById('recHint').textContent = 'Tocca per registrare direttamente dal microfono';
       },
 
-      updateRecTimer: function() {
+      updateRecTimer: function () {
         const h = Math.floor(this.recSeconds / 3600);
         const m = Math.floor((this.recSeconds % 3600) / 60);
         const s = this.recSeconds % 60;
@@ -1229,7 +1327,7 @@
         document.getElementById('recTimer').textContent = fmt;
       },
 
-      onAudioFileSelected: function(e) {
+      onAudioFileSelected: function (e) {
         const file = e.target.files[0];
         if (!file) return;
         this.selectedFileBlob = file;
@@ -1242,54 +1340,88 @@
       // -----------------------------------------------------------------------
       // GOOGLE DRIVE API V3 & GIS
       // -----------------------------------------------------------------------
-      isTokenValid: function() {
+      isTokenValid: function () {
         return !!(this.accessToken && Date.now() < this.tokenExpiry);
       },
 
-      saveGoogleClientId: function() {
-        const val = document.getElementById('googleClientIdInput').value.trim();
+      saveGoogleClientId: function () {
+        const inputEl = document.getElementById('googleClientIdInput');
+        const val = inputEl ? inputEl.value.trim() : '';
+        if (inputEl) inputEl.value = val;
         if (val) {
           localStorage.setItem('flowlocal_google_client_id', val);
           this.showToast('Client ID salvato!');
+        } else {
+          localStorage.removeItem('flowlocal_google_client_id');
         }
       },
 
-      connectGoogleDrive: function() {
-        const clientId = localStorage.getItem('flowlocal_google_client_id') || (document.getElementById('googleClientIdInput') ? document.getElementById('googleClientIdInput').value.trim() : '');
+      connectGoogleDrive: function () {
+        const inputEl = document.getElementById('googleClientIdInput');
+        let clientId = inputEl ? inputEl.value.trim() : '';
+        if (!clientId) {
+          clientId = (localStorage.getItem('flowlocal_google_client_id') || '').trim();
+        }
+
+        if (inputEl && clientId) {
+          inputEl.value = clientId;
+        }
+
         if (!clientId) {
           alert('Inserisci prima il tuo Google OAuth Client ID nelle impostazioni.');
           this.showTab('settings');
+          if (inputEl) inputEl.focus();
           return;
         }
+
+        if (!clientId.endsWith('.apps.googleusercontent.com')) {
+          alert('Il Google Client ID non sembra valido.\n\nDeve terminare con ".apps.googleusercontent.com"\n(es. 123456789-abcdef.apps.googleusercontent.com).\n\nVerifica di aver copiato l\'intero Client ID per applicazione Web dalla Google Cloud Console.');
+          this.showTab('settings');
+          if (inputEl) inputEl.focus();
+          return;
+        }
+
+        // Salva il client ID sanificato
+        localStorage.setItem('flowlocal_google_client_id', clientId);
 
         if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
-          alert('Libreria Google Identity Services non ancora caricata. Verifica la connessione Internet.');
+          alert('Libreria Google Identity Services non ancora caricata o bloccata.\nVerifica la connessione a Internet o disattiva eventuali estensioni ad-block.');
           return;
         }
 
-        this.tokenClient = google.accounts.oauth2.initTokenClient({
-          client_id: clientId,
-          scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive',
-          callback: (resp) => {
-            if (resp.access_token) {
-              this.accessToken = resp.access_token;
-              this.tokenExpiry = Date.now() + ((parseInt(resp.expires_in, 10) || 3600) * 1000);
-              localStorage.setItem('flowlocal_drive_token', this.accessToken);
-              localStorage.setItem('flowlocal_drive_token_expires', this.tokenExpiry.toString());
-              this.updateOnlineStatus();
-              this.showToast('Google Drive collegato con successo!');
-              this.syncFromDrive();
-            } else if (resp.error) {
-              alert('Errore autorizzazione Google: ' + resp.error);
-            }
+        // Re-inizializza il client OAuth se non ancora inizializzato o se il client_id è cambiato
+        if (!this.tokenClient || this.initializedClientId !== clientId) {
+          try {
+            this.tokenClient = google.accounts.oauth2.initTokenClient({
+              client_id: clientId,
+              scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive',
+              callback: (resp) => {
+                if (resp.access_token) {
+                  this.accessToken = resp.access_token;
+                  this.tokenExpiry = Date.now() + ((parseInt(resp.expires_in, 10) || 3600) * 1000);
+                  localStorage.setItem('flowlocal_drive_token', this.accessToken);
+                  localStorage.setItem('flowlocal_drive_token_expires', this.tokenExpiry.toString());
+                  this.updateOnlineStatus();
+                  this.showToast('Google Drive collegato con successo!');
+                  this.syncFromDrive();
+                } else if (resp.error) {
+                  const desc = resp.error_description ? `\n${resp.error_description}` : '';
+                  alert('Errore autorizzazione Google: ' + resp.error + desc);
+                }
+              }
+            });
+            this.initializedClientId = clientId;
+          } catch (initErr) {
+            alert('Errore inizializzazione Google Identity Services:\n' + initErr.message);
+            return;
           }
-        });
+        }
 
         this.tokenClient.requestAccessToken({ prompt: 'consent' });
       },
 
       // Helper per trovare o creare cartella su Google Drive
-      findOrCreateFolder: async function(name, parentId = null) {
+      findOrCreateFolder: async function (name, parentId = null) {
         let q = `mimeType = 'application/vnd.google-apps.folder' and name = '${name}' and trashed = false`;
         if (parentId) {
           q += ` and '${parentId}' in parents`;
@@ -1318,7 +1450,7 @@
       },
 
       // Carica file su Google Drive via Multipart Upload
-      uploadFileToDrive: async function(fileBlob, filename, parentFolderId, mimeType = null) {
+      uploadFileToDrive: async function (fileBlob, filename, parentFolderId, mimeType = null) {
         const metadata = {
           name: filename,
           parents: [parentFolderId]
@@ -1333,7 +1465,7 @@
         // Convertiamo il file blob in ArrayBuffer per costruire il body binario
         const fileBuffer = await fileBlob.arrayBuffer();
         const metaPart = `${delimiter}Content-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}${delimiter}Content-Type: ${effectiveMime}\r\n\r\n`;
-        
+
         const encoder = new TextEncoder();
         const metaBytes = encoder.encode(metaPart);
         const closeBytes = encoder.encode(closeDelim);
@@ -1363,7 +1495,7 @@
       // -----------------------------------------------------------------------
       // UPLOAD AUDIO JOB (Audio + .meta.json in FlowLocal_Sync/inbox_audio/)
       // -----------------------------------------------------------------------
-      uploadAudioJob: async function() {
+      uploadAudioJob: async function () {
         if (!this.selectedFileBlob) {
           alert('Nessun audio registrato o selezionato. Registra una lezione o scegli un file.');
           return;
@@ -1414,7 +1546,7 @@
 
           pBar.style.width = '100%';
           this.showToast('✅ Audio inviato alla Coda Cloud!');
-          
+
           alert(`Registrazione caricata con successo su Google Drive!\n\nFile: ${filename}\nProfilo: ${this.profile}\nMateria: ${subject}\n\nIl PC elaborerà l'audio non appena cliccherai '▶️ Elabora Coda' nell'Hub.`);
 
           // Reset del form
@@ -1434,7 +1566,7 @@
       // -----------------------------------------------------------------------
       // SINCRONIZZAZIONE LIBRERIA (outbox_study/library.json)
       // -----------------------------------------------------------------------
-      syncFromDrive: async function(silent = false) {
+      syncFromDrive: async function (silent = false) {
         if (!navigator.onLine) {
           if (!silent) this.showToast('Sei offline: mostro i dati salvati.');
           return;
@@ -1450,7 +1582,7 @@
 
         try {
           if (!silent) this.showToast('Sincronizzazione con Google Drive...');
-          
+
           // Trova outbox_study
           const syncFolderId = await this.findOrCreateFolder('FlowLocal_Sync');
           const outboxFolderId = await this.findOrCreateFolder('outbox_study', syncFolderId);
@@ -1484,7 +1616,7 @@
         }
       },
 
-      importManualJson: function(e) {
+      importManualJson: function (e) {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
@@ -1504,7 +1636,7 @@
         reader.readAsText(file);
       },
 
-      clearOfflineCache: async function() {
+      clearOfflineCache: async function () {
         if (confirm('Vuoi svuotare tutti i dati salvati offline sul telefono?')) {
           localStorage.removeItem('flowlocal_cached_library');
           const db = await openOfflineDB();
@@ -1520,21 +1652,21 @@
       // -----------------------------------------------------------------------
       // RENDERING LIBRERIA & SBOBINE
       // -----------------------------------------------------------------------
-      setLibraryProfileFilter: function(prof, btn) {
+      setLibraryProfileFilter: function (prof, btn) {
         this.libFilterProfile = prof;
         document.querySelectorAll('#profileFilterPills .fpill').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         this.renderLibrary();
       },
 
-      setLibrarySubjectFilter: function(subj, btn) {
+      setLibrarySubjectFilter: function (subj, btn) {
         this.libFilterSubject = subj;
         document.querySelectorAll('#subjectFilterPills .fpill').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         this.renderLibrary();
       },
 
-      renderLibrary: function() {
+      renderLibrary: function () {
         const container = document.getElementById('libraryListContainer');
         if (!container) return;
 
@@ -1607,13 +1739,13 @@
         container.innerHTML = cardsHtml;
       },
 
-      openDetail: function(noteId) {
+      openDetail: function (noteId) {
         if (!this.libraryData || !this.libraryData.notes) return;
         const note = this.libraryData.notes.find(n => n.id === noteId);
         if (!note) return;
 
         document.getElementById('detailTitle').textContent = note.title;
-        
+
         const profClass = note.profile === 'Lei' ? 'badge-profile-lei' : 'badge-profile-alessandro';
         document.getElementById('detailBadges').innerHTML = `
           <span class="badge ${profClass}">${note.profile}</span>
@@ -1636,12 +1768,12 @@
         document.getElementById('detailOverlay').classList.add('active');
       },
 
-      closeDetail: function() {
+      closeDetail: function () {
         document.getElementById('detailOverlay').classList.remove('active');
       },
 
       // Lightweight Markdown + LaTeX & Unclear Audio Highlighter
-      renderMarkdown: function(md) {
+      renderMarkdown: function (md) {
         if (!md) return '';
         let escaped = md
           .replace(/&/g, "&amp;")
@@ -1677,7 +1809,7 @@
       // -----------------------------------------------------------------------
       // RENDERING FLASHCARD INTERATTIVE
       // -----------------------------------------------------------------------
-      setFcProfileFilter: function(prof, btn) {
+      setFcProfileFilter: function (prof, btn) {
         this.fcFilterProfile = prof;
         document.querySelectorAll('#fcProfileFilterPills .fpill').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
@@ -1685,7 +1817,7 @@
         this.renderFlashcards();
       },
 
-      renderFlashcards: function() {
+      renderFlashcards: function () {
         const container = document.getElementById('flashcardBoxContainer');
         if (!container) return;
 
@@ -1734,19 +1866,19 @@
         `;
       },
 
-      nextFlashcard: function() {
+      nextFlashcard: function () {
         if (this.activeFlashcards.length === 0) return;
         this.currentFcIndex = (this.currentFcIndex + 1) % this.activeFlashcards.length;
         this.renderFlashcards();
       },
 
-      prevFlashcard: function() {
+      prevFlashcard: function () {
         if (this.activeFlashcards.length === 0) return;
         this.currentFcIndex = (this.currentFcIndex - 1 + this.activeFlashcards.length) % this.activeFlashcards.length;
         this.renderFlashcards();
       },
 
-      shuffleFlashcards: function() {
+      shuffleFlashcards: function () {
         if (this.activeFlashcards.length <= 1) return;
         for (let i = this.activeFlashcards.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
@@ -1761,5 +1893,5 @@
     window.addEventListener('DOMContentLoaded', () => app.init());
   </script>
 </body>
-</html>
 
+</html>
