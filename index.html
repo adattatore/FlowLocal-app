@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FlowLocal">
+  <meta name="theme-color" content="#0B0F19">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>FlowLocal Mobile — Sbobine & Studio</title>
+
+  <!-- Google Identity Services (GIS) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    :root {
+      --bg-canvas: #0B0F19;
+      --bg-card: #131722;
+      --bg-card-hover: #1A2030;
+      --bg-input: #1E293B;
+      --border-color: #242E42;
+      --border-focus: #0284C7;
+      --primary: #0284C7;
+      --primary-hover: #0369A1;
+      --accent-cyan: #38BDF8;
+      --accent-green: #10B981;
+      --accent-amber: #F59E0B;
+      --accent-rose: #F43F5E;
+      --accent-purple: #A855F7;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-top: var(--safe-top);
+      padding-bottom: calc(72px + var(--safe-bottom));
+      user-select: none;
+    }
+
+    /* HEADER */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(11, 15, 25, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-orb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #38BDF8, #0284C7 60%, #03426A);
+      box-shadow: 0 0 12px rgba(2, 132, 199, 0.6);
+      display: inline-block;
+      animation: pulse-orb 3s infinite ease-in-out;
+    }
+
+    @keyframes pulse-orb {
+      0%, 100% { transform: scale(1); opacity: 0.95; }
+      50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 10px #38BDF8); }
+    }
+
+    .brand-title {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      color: #FFFFFF;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #1E293B;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+    }
+
+    .status-pill.online {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34D399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .status-pill.offline {
+      background: rgba(245, 158, 11, 0.15);
+      color: #FBBF24;
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .icon-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .icon-btn:active {
+      transform: scale(0.95);
+      background: var(--bg-card-hover);
+    }
+
+    /* MAIN CONTAINER & TABS */
+    main {
+      flex: 1;
+      padding: 16px;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .tab-view {
+      display: none;
+    }
+    .tab-view.active {
+      display: block;
+      animation: fadeIn 0.2s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CARD STYLING */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* FORMS & INPUTS */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"], input[type="password"], select {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 11px 14px;
+      border-radius: 9px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s ease;
+      user-select: text;
+    }
+    input:focus, select:focus {
+      border-color: var(--border-focus);
+    }
+
+    /* SEGMENTED PROFILE BUTTONS */
+    .segmented-control {
+      display: flex;
+      background: var(--bg-input);
+      border-radius: 10px;
+      padding: 4px;
+      border: 1px solid var(--border-color);
+      gap: 4px;
+    }
+
+    .seg-btn {
+      flex: 1;
+      padding: 9px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .seg-btn.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
+    }
+
+    /* QUICK CHIPS */
+    .chip-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      background: #1E293B;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 16px;
+      cursor: pointer;
+    }
+    .chip.active {
+      background: rgba(2, 132, 199, 0.25);
+      color: var(--accent-cyan);
+      border-color: var(--primary);
+    }
+
+    /* BUTTONS */
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.1s ease, background 0.15s ease;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284C7, #0369A1);
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10B981, #059669);
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-danger {
+      background: #E11D48;
+      color: #FFFFFF;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* AUDIO RECORDER MODULE */
+    .rec-box {
+      background: #0E131E;
+      border: 1px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 20px 14px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .rec-timer {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      font-variant-numeric: tabular-nums;
+      color: #FFFFFF;
+      margin-bottom: 12px;
+    }
+
+    .rec-timer.recording {
+      color: var(--accent-rose);
+      animation: blink-rec 1s infinite;
+    }
+
+    @keyframes blink-rec {
+      50% { opacity: 0.6; }
+    }
+
+    .rec-pulse-btn {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--accent-rose);
+      border: 4px solid rgba(244, 63, 94, 0.25);
+      color: #FFFFFF;
+      font-size: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px auto;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+      transition: transform 0.15s ease;
+    }
+    .rec-pulse-btn.active {
+      animation: pulse-ring 1.5s infinite;
+      background: #EF4444;
+    }
+
+    @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .rec-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+
+    /* FILE INPUT STYLING */
+    .file-drop-area {
+      position: relative;
+      background: #0E131E;
+      border: 1px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 14px;
+    }
+
+    .file-drop-area input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    /* SEARCH & FILTER BAR IN LIBRARY */
+    .search-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .filter-pills::-webkit-scrollbar { display: none; }
+
+    .fpill {
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .fpill.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    /* SBOBINE & NOTES LIST */
+    .note-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .note-card:active {
+      background: var(--bg-card-hover);
+    }
+
+    .note-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-profile-alessandro { background: rgba(56, 189, 248, 0.18); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .badge-profile-lei { background: rgba(168, 85, 247, 0.18); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.4); }
+    .badge-subject { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    .note-date {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .note-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 5px;
+      line-height: 1.3;
+    }
+
+    .note-preview {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* NOTE DETAIL MODAL */
+    .detail-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 100;
+      display: none;
+      padding: calc(var(--safe-top) + 12px) 12px calc(var(--safe-bottom) + 12px) 12px;
+      overflow-y: auto;
+    }
+    .detail-overlay.active {
+      display: block;
+    }
+
+    .detail-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 720px;
+      margin: 0 auto;
+      user-select: text;
+    }
+
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .detail-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    .detail-content {
+      font-size: 14px;
+      line-height: 1.65;
+      color: #E2E8F0;
+    }
+
+    .detail-content h1, .detail-content h2, .detail-content h3 {
+      color: #F8FAFC;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+
+    .detail-content p {
+      margin-bottom: 12px;
+    }
+
+    .detail-content ul, .detail-content ol {
+      margin-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .detail-summary-box {
+      background: rgba(2, 132, 199, 0.1);
+      border-left: 4px solid var(--accent-cyan);
+      padding: 12px 14px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+
+    /* BADGE AUDIO NON CHIARO EVITENZIATO */
+    .unclear-audio-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.6);
+      color: #FDE047;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      margin: 2px 0;
+    }
+
+    /* FLASHCARD INTERATTIVE */
+    .fc-box {
+      background: #111726;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px 18px;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      position: relative;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .fc-box:active {
+      transform: scale(0.99);
+    }
+
+    .fc-box.flipped {
+      border-color: var(--accent-cyan);
+      background: #151F33;
+    }
+
+    .fc-indicator {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 12px;
+    }
+
+    .fc-question {
+      font-size: 17px;
+      font-weight: 700;
+      color: #FFFFFF;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .fc-answer {
+      font-size: 15px;
+      color: var(--accent-cyan);
+      line-height: 1.5;
+      font-weight: 500;
+      display: none;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-color);
+    }
+    .fc-box.flipped .fc-answer {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .fc-prompt {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .fc-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    /* PROGRESS BAR */
+    .progress-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: var(--bg-input);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 10px;
+      display: none;
+    }
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.2s ease;
+    }
+
+    /* BOTTOM NAV BAR */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: rgba(11, 15, 25, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      padding: 6px 12px calc(6px + var(--safe-bottom)) 12px;
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 0;
+      color: var(--text-dim);
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 10.5px;
+      font-weight: 600;
+      gap: 3px;
+      transition: color 0.15s ease;
+    }
+    .nav-item.active {
+      color: var(--accent-cyan);
+    }
+    .nav-item svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+
+    /* NOTIFICATION TOAST */
+    .toast {
+      position: fixed;
+      top: calc(var(--safe-top) + 60px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #1E293B;
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-color);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 40px 16px;
+      color: var(--text-dim);
+    }
+    .empty-state-icon {
+      font-size: 42px;
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <span class="brand-orb"></span>
+      <div>
+        <div class="brand-title">FlowLocal</div>
+        <div class="brand-subtitle">Studio & Sbobine Cloud</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div id="syncStatusBadge" class="status-pill offline" onclick="app.syncFromDrive()">
+        <span>●</span> <span id="syncStatusText">Offline</span>
+      </div>
+      <button class="icon-btn" onclick="app.showTab('settings')" title="Impostazioni">⚙️</button>
+    </div>
+  </header>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast">Notifica</div>
+
+  <!-- MAIN VIEWS -->
+  <main>
+    <!-- TAB 1: INVIA AUDIO AL PC -->
+    <section id="tab-upload" class="tab-view active">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🎙️ Invia Registrazione al PC</div>
+        </div>
+
+        <!-- Selettore Profilo -->
+        <div class="form-group">
+          <label>Profilo Studente</label>
+          <div class="segmented-control">
+            <button type="button" class="seg-btn active" onclick="app.setProfile('Alessandro', this)">Alessandro</button>
+            <button type="button" class="seg-btn" onclick="app.setProfile('Lei', this)">Lei</button>
+          </div>
+        </div>
+
+        <!-- Materia / Corso -->
+        <div class="form-group">
+          <label>Materia / Corso</label>
+          <input type="text" id="subjectInput" placeholder="Es. Diritto Sanitario, Fisica 2..." value="Diritto Sanitario">
+          <div class="chip-container">
+            <span class="chip active" onclick="app.selectSubjectChip('Diritto Sanitario', this)">Diritto Sanitario</span>
+            <span class="chip" onclick="app.selectSubjectChip('Fisica 2', this)">Fisica 2</span>
+            <span class="chip" onclick="app.selectSubjectChip('Analisi Matematica', this)">Analisi</span>
+            <span class="chip" onclick="app.selectSubjectChip('Anatomia Clinica', this)">Anatomia</span>
+            <span class="chip" onclick="app.selectSubjectChip('Informatica', this)">Informatica</span>
+          </div>
+        </div>
+
+        <!-- Titolo / Note Aggiuntive -->
+        <div class="form-group">
+          <label>Titolo Lezione (Opzionale)</label>
+          <input type="text" id="titleInput" placeholder="Es. Lezione 3 - Colpa grave e linee guida">
+        </div>
+
+        <!-- REGISTRATORE MICROFONO BROWSER -->
+        <div class="rec-box">
+          <div id="recTimer" class="rec-timer">00:00:00</div>
+          <button id="recBtn" class="rec-pulse-btn" onclick="app.toggleRecording()">🎙️</button>
+          <div id="recHint" style="font-size: 12px; color: var(--text-muted); font-weight: 500;">
+            Tocca per registrare direttamente dal microfono
+          </div>
+
+          <div id="recActionsRow" class="rec-actions" style="display: none;">
+            <button class="btn btn-outline" style="width: auto; padding: 6px 14px; font-size: 12px;" onclick="app.cancelRecording()">✕ Scarta</button>
+          </div>
+
+          <audio id="audioPreview" controls style="display: none;"></audio>
+        </div>
+
+        <!-- OPPURE CARICA FILE ESISTENTE -->
+        <div class="file-drop-area">
+          <input type="file" id="audioFileInput" accept="audio/*,video/*,.m4a,.mp3,.wav,.mp4,.ogg,.webm,.aac" onchange="app.onAudioFileSelected(event)">
+          <div style="font-size: 24px; margin-bottom: 4px;">📂</div>
+          <div id="fileUploadLabel" style="font-size: 13px; font-weight: 600; color: #FFFFFF;">
+            Oppure tocca qui per scegliere un file audio dal telefono
+          </div>
+          <div id="fileUploadSub" style="font-size: 11px; color: var(--text-dim); margin-top: 3px;">
+            Supporta .m4a, .mp3, .mp4, .wav, .aac
+          </div>
+        </div>
+
+        <!-- PROGRESS BAR UPLOAD -->
+        <div id="uploadProgressBox" class="progress-bar-bg">
+          <div id="uploadProgressBar" class="progress-bar-fill"></div>
+        </div>
+
+        <button id="uploadSubmitBtn" class="btn btn-primary" onclick="app.uploadAudioJob()" style="margin-top: 12px;">
+          🚀 Invia alla Coda Cloud del PC
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 2: LIBRERIA SBOBINE & NOTE -->
+    <section id="tab-library" class="tab-view">
+      <div class="search-row">
+        <input type="text" id="librarySearchInput" placeholder="🔍 Cerca nelle sbobine e appunti…" oninput="app.renderLibrary()">
+        <button class="icon-btn" onclick="app.syncFromDrive()" title="Sincronizza subito">🔄</button>
+      </div>
+
+      <!-- Filtri Profilo & Tipo -->
+      <div class="filter-pills" id="profileFilterPills">
+        <button class="fpill active" onclick="app.setLibraryProfileFilter('ALL', this)">Tutti i Profili</button>
+        <button class="fpill" onclick="app.setLibraryProfileFilter('Alessandro', this)">Alessandro</button>
+        <button class="fpill" onclick="app.setLibraryProfileFilter('Lei', this)">Lei</button>
+      </div>
+
+      <div class="filter-pills" id="subjectFilterPills">
+        <button class="fpill active" onclick="app.setLibrarySubjectFilter('ALL', this)">Tutte le Materie</button>
+      </div>
+
+      <div id="libraryListContainer"></div>
+    </section>
+
+    <!-- TAB 3: FLASHCARD INTERATTIVE -->
+    <section id="tab-flashcards" class="tab-view">
+      <div class="filter-pills" id="fcProfileFilterPills">
+        <button class="fpill active" onclick="app.setFcProfileFilter('ALL', this)">Tutti</button>
+        <button class="fpill" onclick="app.setFcProfileFilter('Alessandro', this)">Alessandro</button>
+        <button class="fpill" onclick="app.setFcProfileFilter('Lei', this)">Lei</button>
+      </div>
+
+      <div id="flashcardBoxContainer">
+        <!-- Render dinamico card studio attiva -->
+      </div>
+    </section>
+
+    <!-- TAB 4: IMPOSTAZIONI & DRIVE API -->
+    <section id="tab-settings" class="tab-view">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🔑 Integrazione Google Drive API</div>
+        </div>
+        <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
+          Collega il tuo Google Drive per sincronizzare automaticamente la cartella <code>FlowLocal_Sync</code> senza aprire l'app di Drive.
+        </p>
+
+        <div class="form-group">
+          <label>Google OAuth Client ID</label>
+          <input type="text" id="googleClientIdInput" placeholder="7123456789-xxxx.apps.googleusercontent.com" onchange="app.saveGoogleClientId()">
+          <div style="font-size: 11px; color: var(--text-dim); margin-top: 5px; line-height: 1.4;">
+            Crea un <em>Client ID applicazione Web</em> su Google Cloud Console (Aggiungi le origini JavaScript autorizzate es. <code>http://localhost</code> o il tuo dominio PWA).
+          </div>
+        </div>
+
+        <button id="authDriveBtn" class="btn btn-success" onclick="app.connectGoogleDrive()" style="margin-bottom: 10px;">
+          🔑 Collega Google Drive
+        </button>
+
+        <button class="btn btn-primary" onclick="app.syncFromDrive()" style="margin-bottom: 10px;">
+          🔄 Sincronizza Libreria Ora
+        </button>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 14px; margin-top: 14px;">
+          <div class="card-title" style="font-size: 14px; margin-bottom: 8px;">📁 Riserva Offline / Import Manuale</div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+            Puoi caricare manualmente il file <code>outbox_study/library.json</code> esportato dal PC senza account Google.
+          </p>
+          <input type="file" id="manualJsonInput" accept=".json" onchange="app.importManualJson(event)" style="display: none;">
+          <button class="btn btn-outline" onclick="document.getElementById('manualJsonInput').click()">
+            📥 Carica library.json dal telefono
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="font-size: 14px; margin-bottom: 10px;">💾 Memoria Locale IndexedDB</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;" id="storageStats">
+          Archivio locale attivo per visualizzazione in aula.
+        </div>
+        <button class="btn btn-outline" style="border-color: #3F2A2E; color: #F87171;" onclick="app.clearOfflineCache()">
+          🗑️ Svuota Cache Offline
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODALE DETTAGLIO SBOBINA -->
+  <div id="detailOverlay" class="detail-overlay" onclick="app.closeDetail(event)">
+    <div class="detail-container" onclick="event.stopPropagation()">
+      <div class="detail-header">
+        <div>
+          <div id="detailTitle" class="detail-title">Titolo Sbobina</div>
+          <div id="detailBadges" style="margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap;"></div>
+        </div>
+        <button class="icon-btn" onclick="app.closeDetail()">✕</button>
+      </div>
+
+      <div id="detailSummary" class="detail-summary-box" style="display: none;"></div>
+      <div id="detailBody" class="detail-content"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION BAR -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" onclick="app.showTab('upload')">
+      <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+      <span>Invia Audio</span>
+    </div>
+    <div class="nav-item" onclick="app.showTab('library')">
+      <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+      <span>Libreria</span>
+    </div>
+    <div class="nav-item" onclick="app.showTab('flashcards')">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      <span>Flashcard</span>
+    </div>
+    <div class="nav-item" onclick="app.showTab('settings')">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      <span>Setup</span>
+    </div>
+  </nav>
+
+  <!-- APPLICATION LOGIC & GOOGLE DRIVE API CLIENT -->
+  <script>
+    // Inizializzazione Service Worker per uso offline
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('[PWA] Service Worker registrato con scope:', reg.scope))
+          .catch((err) => console.warn('[PWA] Errore Service Worker:', err));
+      });
+    }
+
+    // GESTIONE INDEXEDDB LOCALE
+    const DB_NAME = 'FlowLocalOfflineDB';
+    const DB_VERSION = 1;
+    function openOfflineDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('library')) {
+            db.createObjectStore('library', { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveLibraryToIndexedDB(data) {
+      try {
+        const db = await openOfflineDB();
+        const tx = db.transaction('library', 'readwrite');
+        const store = tx.objectStore('library');
+        store.put({ id: 'current_library', data: data, updatedAt: new Date().toISOString() });
+        return new Promise((resolve) => tx.oncomplete = resolve);
+      } catch (err) {
+        console.warn('Errore salvataggio IndexedDB:', err);
+        localStorage.setItem('flowlocal_cached_library', JSON.stringify(data));
+      }
+    }
+
+    async function loadLibraryFromIndexedDB() {
+      try {
+        const db = await openOfflineDB();
+        const tx = db.transaction('library', 'readonly');
+        const store = tx.objectStore('library');
+        const req = store.get('current_library');
+        return new Promise((resolve) => {
+          req.onsuccess = () => resolve(req.result ? req.result.data : null);
+          req.onerror = () => resolve(null);
+        });
+      } catch (err) {
+        const raw = localStorage.getItem('flowlocal_cached_library');
+        return raw ? JSON.parse(raw) : null;
+      }
+    }
+
+    // STATO APPLICAZIONE GLOBALE
+    const app = {
+      profile: 'Alessandro',
+      libraryData: null,
+      activeTab: 'upload',
+      libFilterProfile: 'ALL',
+      libFilterSubject: 'ALL',
+      fcFilterProfile: 'ALL',
+      currentFcIndex: 0,
+      activeFlashcards: [],
+      
+      // Audio Recording State
+      mediaRecorder: null,
+      recordedChunks: [],
+      recordedBlob: null,
+      recTimerInterval: null,
+      recSeconds: 0,
+      selectedFileBlob: null,
+      selectedFileName: null,
+
+      // Google Drive API State
+      tokenClient: null,
+      accessToken: localStorage.getItem('flowlocal_drive_token') || null,
+      tokenExpiry: parseInt(localStorage.getItem('flowlocal_drive_token_expires') || '0', 10),
+
+      init: async function() {
+        this.updateOnlineStatus();
+        window.addEventListener('online', () => this.updateOnlineStatus());
+        window.addEventListener('offline', () => this.updateOnlineStatus());
+
+        const savedClientId = localStorage.getItem('flowlocal_google_client_id');
+        if (savedClientId) {
+          const el = document.getElementById('googleClientIdInput');
+          if (el) el.value = savedClientId;
+        }
+
+        // Carica dati offline da IndexedDB all'avvio
+        const cached = await loadLibraryFromIndexedDB();
+        if (cached) {
+          this.libraryData = cached;
+          this.renderLibrary();
+          this.renderFlashcards();
+        }
+
+        // Se abbiamo il token e siamo online, sincronizziamo in background
+        if (navigator.onLine && this.isTokenValid()) {
+          this.syncFromDrive(true);
+        }
+      },
+
+      showToast: function(msg) {
+        const t = document.getElementById('toast');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2800);
+      },
+
+      updateOnlineStatus: function() {
+        const badge = document.getElementById('syncStatusBadge');
+        const text = document.getElementById('syncStatusText');
+        if (!badge || !text) return;
+        if (navigator.onLine) {
+          badge.className = 'status-pill online';
+          text.textContent = this.isTokenValid() ? 'Drive Connesso' : 'Online';
+        } else {
+          badge.className = 'status-pill offline';
+          text.textContent = 'Modalità Aula (Offline)';
+        }
+      },
+
+      showTab: function(tabId) {
+        document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+        const target = document.getElementById('tab-' + tabId);
+        if (target) target.classList.add('active');
+
+        const navIndex = ['upload', 'library', 'flashcards', 'settings'].indexOf(tabId);
+        const navItems = document.querySelectorAll('.nav-item');
+        if (navItems[navIndex]) navItems[navIndex].classList.add('active');
+
+        this.activeTab = tabId;
+        if (tabId === 'library') this.renderLibrary();
+        if (tabId === 'flashcards') this.renderFlashcards();
+      },
+
+      setProfile: function(name, btn) {
+        this.profile = name;
+        document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      },
+
+      selectSubjectChip: function(subject, chip) {
+        document.getElementById('subjectInput').value = subject;
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      },
+
+      // -----------------------------------------------------------------------
+      // AUDIO RECORDING (MediaRecorder)
+      // -----------------------------------------------------------------------
+      toggleRecording: async function() {
+        if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+          this.stopRecording();
+        } else {
+          await this.startRecording();
+        }
+      },
+
+      startRecording: async function() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          this.recordedChunks = [];
+          
+          let mime = 'audio/webm';
+          if (MediaRecorder.isTypeSupported('audio/mp4')) mime = 'audio/mp4';
+          else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mime = 'audio/webm;codecs=opus';
+          else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) mime = 'audio/ogg;codecs=opus';
+
+          this.mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
+          this.mediaRecorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) this.recordedChunks.push(e.data);
+          };
+
+          this.mediaRecorder.onstop = () => {
+            stream.getTracks().forEach(t => t.stop());
+            this.recordedBlob = new Blob(this.recordedChunks, { type: mime });
+            const preview = document.getElementById('audioPreview');
+            preview.src = URL.createObjectURL(this.recordedBlob);
+            preview.style.display = 'block';
+
+            this.selectedFileBlob = this.recordedBlob;
+            const ext = mime.includes('mp4') ? 'm4a' : 'webm';
+            const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+            this.selectedFileName = `registrazione_${this.profile.toLowerCase()}_${timestamp}.${ext}`;
+            
+            document.getElementById('recHint').textContent = `Audio registrato (${(this.recordedBlob.size / 1024 / 1024).toFixed(2)} MB)`;
+            document.getElementById('recActionsRow').style.display = 'flex';
+          };
+
+          this.mediaRecorder.start(1000);
+          this.recSeconds = 0;
+          this.updateRecTimer();
+          clearInterval(this.recTimerInterval);
+          this.recTimerInterval = setInterval(() => {
+            this.recSeconds++;
+            this.updateRecTimer();
+          }, 1000);
+
+          document.getElementById('recBtn').classList.add('active');
+          document.getElementById('recTimer').classList.add('recording');
+          document.getElementById('recHint').textContent = 'Registrazione in corso... Tocca di nuovo per fermare';
+          document.getElementById('audioPreview').style.display = 'none';
+          document.getElementById('recActionsRow').style.display = 'none';
+        } catch (err) {
+          alert('Impossibile accedere al microfono: ' + err.message);
+        }
+      },
+
+      stopRecording: function() {
+        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+          this.mediaRecorder.stop();
+        }
+        clearInterval(this.recTimerInterval);
+        document.getElementById('recBtn').classList.remove('active');
+        document.getElementById('recTimer').classList.remove('recording');
+      },
+
+      cancelRecording: function() {
+        this.stopRecording();
+        this.recordedChunks = [];
+        this.recordedBlob = null;
+        this.selectedFileBlob = null;
+        this.selectedFileName = null;
+        document.getElementById('audioPreview').style.display = 'none';
+        document.getElementById('recActionsRow').style.display = 'none';
+        document.getElementById('recTimer').textContent = '00:00:00';
+        document.getElementById('recHint').textContent = 'Tocca per registrare direttamente dal microfono';
+      },
+
+      updateRecTimer: function() {
+        const h = Math.floor(this.recSeconds / 3600);
+        const m = Math.floor((this.recSeconds % 3600) / 60);
+        const s = this.recSeconds % 60;
+        const fmt = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        document.getElementById('recTimer').textContent = fmt;
+      },
+
+      onAudioFileSelected: function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        this.selectedFileBlob = file;
+        this.selectedFileName = file.name;
+        document.getElementById('fileUploadLabel').textContent = `Selezionato: ${file.name}`;
+        document.getElementById('fileUploadSub').textContent = `Dimensione: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+        this.showToast('File audio selezionato!');
+      },
+
+      // -----------------------------------------------------------------------
+      // GOOGLE DRIVE API V3 & GIS
+      // -----------------------------------------------------------------------
+      isTokenValid: function() {
+        return !!(this.accessToken && Date.now() < this.tokenExpiry);
+      },
+
+      saveGoogleClientId: function() {
+        const val = document.getElementById('googleClientIdInput').value.trim();
+        if (val) {
+          localStorage.setItem('flowlocal_google_client_id', val);
+          this.showToast('Client ID salvato!');
+        }
+      },
+
+      connectGoogleDrive: function() {
+        const clientId = localStorage.getItem('flowlocal_google_client_id') || (document.getElementById('googleClientIdInput') ? document.getElementById('googleClientIdInput').value.trim() : '');
+        if (!clientId) {
+          alert('Inserisci prima il tuo Google OAuth Client ID nelle impostazioni.');
+          this.showTab('settings');
+          return;
+        }
+
+        if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+          alert('Libreria Google Identity Services non ancora caricata. Verifica la connessione Internet.');
+          return;
+        }
+
+        this.tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive',
+          callback: (resp) => {
+            if (resp.access_token) {
+              this.accessToken = resp.access_token;
+              this.tokenExpiry = Date.now() + ((parseInt(resp.expires_in, 10) || 3600) * 1000);
+              localStorage.setItem('flowlocal_drive_token', this.accessToken);
+              localStorage.setItem('flowlocal_drive_token_expires', this.tokenExpiry.toString());
+              this.updateOnlineStatus();
+              this.showToast('Google Drive collegato con successo!');
+              this.syncFromDrive();
+            } else if (resp.error) {
+              alert('Errore autorizzazione Google: ' + resp.error);
+            }
+          }
+        });
+
+        this.tokenClient.requestAccessToken({ prompt: 'consent' });
+      },
+
+      // Helper per trovare o creare cartella su Google Drive
+      findOrCreateFolder: async function(name, parentId = null) {
+        let q = `mimeType = 'application/vnd.google-apps.folder' and name = '${name}' and trashed = false`;
+        if (parentId) {
+          q += ` and '${parentId}' in parents`;
+        }
+        const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name)`, {
+          headers: { 'Authorization': `Bearer ${this.accessToken}` }
+        });
+        const data = await searchRes.json();
+        if (data.files && data.files.length > 0) {
+          return data.files[0].id;
+        }
+
+        // Creazione cartella se non trovata
+        const meta = { name: name, mimeType: 'application/vnd.google-apps.folder' };
+        if (parentId) meta.parents = [parentId];
+        const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(meta)
+        });
+        const created = await createRes.json();
+        return created.id;
+      },
+
+      // Carica file su Google Drive via Multipart Upload
+      uploadFileToDrive: async function(fileBlob, filename, parentFolderId, mimeType = null) {
+        const metadata = {
+          name: filename,
+          parents: [parentFolderId]
+        };
+
+        const boundary = '-------FlowLocalMultipartBoundary';
+        const delimiter = `\r\n--${boundary}\r\n`;
+        const closeDelim = `\r\n--${boundary}--`;
+
+        const effectiveMime = mimeType || fileBlob.type || 'application/octet-stream';
+
+        // Convertiamo il file blob in ArrayBuffer per costruire il body binario
+        const fileBuffer = await fileBlob.arrayBuffer();
+        const metaPart = `${delimiter}Content-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}${delimiter}Content-Type: ${effectiveMime}\r\n\r\n`;
+        
+        const encoder = new TextEncoder();
+        const metaBytes = encoder.encode(metaPart);
+        const closeBytes = encoder.encode(closeDelim);
+
+        const totalLength = metaBytes.length + fileBuffer.byteLength + closeBytes.length;
+        const combined = new Uint8Array(totalLength);
+        combined.set(metaBytes, 0);
+        combined.set(new Uint8Array(fileBuffer), metaBytes.length);
+        combined.set(closeBytes, metaBytes.length + fileBuffer.byteLength);
+
+        const uploadRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`,
+            'Content-Type': `multipart/related; boundary=${boundary}`
+          },
+          body: combined
+        });
+
+        if (!uploadRes.ok) {
+          const errText = await uploadRes.text();
+          throw new Error(`Upload fallito (${uploadRes.status}): ${errText}`);
+        }
+        return await uploadRes.json();
+      },
+
+      // -----------------------------------------------------------------------
+      // UPLOAD AUDIO JOB (Audio + .meta.json in FlowLocal_Sync/inbox_audio/)
+      // -----------------------------------------------------------------------
+      uploadAudioJob: async function() {
+        if (!this.selectedFileBlob) {
+          alert('Nessun audio registrato o selezionato. Registra una lezione o scegli un file.');
+          return;
+        }
+
+        if (!navigator.onLine) {
+          alert('Sei in modalità offline. Connettiti a Internet per caricare la registrazione su Google Drive.');
+          return;
+        }
+
+        if (!this.isTokenValid()) {
+          this.connectGoogleDrive();
+          return;
+        }
+
+        const subject = document.getElementById('subjectInput').value.trim() || 'Generale';
+        const customTitle = document.getElementById('titleInput').value.trim() || this.selectedFileName;
+        const filename = this.selectedFileName || `audio_${Date.now()}.m4a`;
+
+        const btn = document.getElementById('uploadSubmitBtn');
+        const pBox = document.getElementById('uploadProgressBox');
+        const pBar = document.getElementById('uploadProgressBar');
+
+        btn.disabled = true;
+        btn.textContent = '⏳ Caricamento su Google Drive...';
+        pBox.style.display = 'block';
+        pBar.style.width = '20%';
+
+        try {
+          // 1. Assicura le cartelle su Google Drive: FlowLocal_Sync -> inbox_audio
+          const syncFolderId = await this.findOrCreateFolder('FlowLocal_Sync');
+          const inboxFolderId = await this.findOrCreateFolder('inbox_audio', syncFolderId);
+          pBar.style.width = '45%';
+
+          // 2. Carica il file audio
+          await this.uploadFileToDrive(this.selectedFileBlob, filename, inboxFolderId);
+          pBar.style.width = '80%';
+
+          // 3. Carica il file companion .meta.json
+          const metaPayload = {
+            profile: this.profile,
+            subject: subject,
+            title: customTitle,
+            created_at: new Date().toISOString()
+          };
+          const metaBlob = new Blob([JSON.stringify(metaPayload, null, 2)], { type: 'application/json' });
+          await this.uploadFileToDrive(metaBlob, `${filename}.meta.json`, inboxFolderId, 'application/json');
+
+          pBar.style.width = '100%';
+          this.showToast('✅ Audio inviato alla Coda Cloud!');
+          
+          alert(`Registrazione caricata con successo su Google Drive!\n\nFile: ${filename}\nProfilo: ${this.profile}\nMateria: ${subject}\n\nIl PC elaborerà l'audio non appena cliccherai '▶️ Elabora Coda' nell'Hub.`);
+
+          // Reset del form
+          this.cancelRecording();
+          document.getElementById('titleInput').value = '';
+          document.getElementById('fileUploadLabel').textContent = 'Oppure tocca qui per scegliere un file audio dal telefono';
+          document.getElementById('fileUploadSub').textContent = 'Supporta .m4a, .mp3, .mp4, .wav, .aac';
+        } catch (err) {
+          alert('Errore durante il caricamento su Google Drive:\n' + err.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '🚀 Invia alla Coda Cloud del PC';
+          setTimeout(() => pBox.style.display = 'none', 1000);
+        }
+      },
+
+      // -----------------------------------------------------------------------
+      // SINCRONIZZAZIONE LIBRERIA (outbox_study/library.json)
+      // -----------------------------------------------------------------------
+      syncFromDrive: async function(silent = false) {
+        if (!navigator.onLine) {
+          if (!silent) this.showToast('Sei offline: mostro i dati salvati.');
+          return;
+        }
+
+        if (!this.isTokenValid()) {
+          if (!silent) {
+            alert('Google Drive non collegato o sessione scaduta. Clicca su "🔑 Collega Google Drive" nelle impostazioni.');
+            this.showTab('settings');
+          }
+          return;
+        }
+
+        try {
+          if (!silent) this.showToast('Sincronizzazione con Google Drive...');
+          
+          // Trova outbox_study
+          const syncFolderId = await this.findOrCreateFolder('FlowLocal_Sync');
+          const outboxFolderId = await this.findOrCreateFolder('outbox_study', syncFolderId);
+
+          // Cerca library.json
+          const q = `name = 'library.json' and '${outboxFolderId}' in parents and trashed = false`;
+          const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,modifiedTime)`, {
+            headers: { 'Authorization': `Bearer ${this.accessToken}` }
+          });
+          const list = await res.json();
+          if (!list.files || list.files.length === 0) {
+            if (!silent) alert('Nessun file library.json trovato in FlowLocal_Sync/outbox_study. Clicca su "🔄 Aggiorna Cloud" nel PC per generarlo.');
+            return;
+          }
+
+          const fileId = list.files[0].id;
+          const downloadRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+            headers: { 'Authorization': `Bearer ${this.accessToken}` }
+          });
+          const json = await downloadRes.json();
+
+          this.libraryData = json;
+          await saveLibraryToIndexedDB(json);
+
+          this.renderLibrary();
+          this.renderFlashcards();
+          this.showToast('✅ Libreria sincronizzata!');
+        } catch (err) {
+          console.warn('Errore sincronizzazione:', err);
+          if (!silent) alert('Errore sincronizzazione Google Drive:\n' + err.message);
+        }
+      },
+
+      importManualJson: function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            this.libraryData = data;
+            await saveLibraryToIndexedDB(data);
+            this.renderLibrary();
+            this.renderFlashcards();
+            this.showToast('Libreria importata con successo!');
+            this.showTab('library');
+          } catch (err) {
+            alert('File JSON non valido: ' + err.message);
+          }
+        };
+        reader.readAsText(file);
+      },
+
+      clearOfflineCache: async function() {
+        if (confirm('Vuoi svuotare tutti i dati salvati offline sul telefono?')) {
+          localStorage.removeItem('flowlocal_cached_library');
+          const db = await openOfflineDB();
+          const tx = db.transaction('library', 'readwrite');
+          tx.objectStore('library').clear();
+          this.libraryData = null;
+          this.renderLibrary();
+          this.renderFlashcards();
+          this.showToast('Cache svuotata.');
+        }
+      },
+
+      // -----------------------------------------------------------------------
+      // RENDERING LIBRERIA & SBOBINE
+      // -----------------------------------------------------------------------
+      setLibraryProfileFilter: function(prof, btn) {
+        this.libFilterProfile = prof;
+        document.querySelectorAll('#profileFilterPills .fpill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.renderLibrary();
+      },
+
+      setLibrarySubjectFilter: function(subj, btn) {
+        this.libFilterSubject = subj;
+        document.querySelectorAll('#subjectFilterPills .fpill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.renderLibrary();
+      },
+
+      renderLibrary: function() {
+        const container = document.getElementById('libraryListContainer');
+        if (!container) return;
+
+        if (!this.libraryData || !this.libraryData.notes || this.libraryData.notes.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📖</div>
+              <div style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin-bottom: 4px;">Nessuna Sbobina Trovata</div>
+              <div style="font-size: 12.5px;">Sincronizza con Google Drive o carica una registrazione per iniziare.</div>
+            </div>
+          `;
+          return;
+        }
+
+        // Popola i chip delle materie se non presenti
+        const subjPills = document.getElementById('subjectFilterPills');
+        if (subjPills && this.libraryData.subjects) {
+          let html = `<button class="fpill ${this.libFilterSubject === 'ALL' ? 'active' : ''}" onclick="app.setLibrarySubjectFilter('ALL', this)">Tutte le Materie</button>`;
+          this.libraryData.subjects.forEach(s => {
+            html += `<button class="fpill ${this.libFilterSubject === s ? 'active' : ''}" onclick="app.setLibrarySubjectFilter('${s}', this)">${s}</button>`;
+          });
+          subjPills.innerHTML = html;
+        }
+
+        const query = (document.getElementById('librarySearchInput') ? document.getElementById('librarySearchInput').value.toLowerCase().trim() : '');
+
+        const filtered = this.libraryData.notes.filter(n => {
+          if (this.libFilterProfile !== 'ALL' && n.profile !== this.libFilterProfile) return false;
+          if (this.libFilterSubject !== 'ALL' && n.subject !== this.libFilterSubject) return false;
+          if (query) {
+            const t = (n.title || '').toLowerCase();
+            const c = (n.content_markdown || '').toLowerCase();
+            const s = (n.subject || '').toLowerCase();
+            if (!t.includes(query) && !c.includes(query) && !s.includes(query)) return false;
+          }
+          return true;
+        });
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">🔍</div>
+              <div style="font-size: 14px; color: #FFFFFF;">Nessuna nota corrisponde ai filtri selezionati.</div>
+            </div>
+          `;
+          return;
+        }
+
+        let cardsHtml = '';
+        filtered.forEach(note => {
+          const profClass = note.profile === 'Lei' ? 'badge-profile-lei' : 'badge-profile-alessandro';
+          const summaryPreview = note.summary ? note.summary : (note.content_markdown || '').slice(0, 140) + '...';
+          const dateStr = note.created_at ? note.created_at.slice(0, 10) : '';
+
+          cardsHtml += `
+            <div class="note-card" onclick="app.openDetail(${note.id})">
+              <div class="note-meta">
+                <div style="display: flex; gap: 5px;">
+                  <span class="badge ${profClass}">${note.profile}</span>
+                  <span class="badge badge-subject">${note.subject}</span>
+                </div>
+                <span class="note-date">${dateStr}</span>
+              </div>
+              <div class="note-card-title">${note.title}</div>
+              <div class="note-preview">${summaryPreview}</div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = cardsHtml;
+      },
+
+      openDetail: function(noteId) {
+        if (!this.libraryData || !this.libraryData.notes) return;
+        const note = this.libraryData.notes.find(n => n.id === noteId);
+        if (!note) return;
+
+        document.getElementById('detailTitle').textContent = note.title;
+        
+        const profClass = note.profile === 'Lei' ? 'badge-profile-lei' : 'badge-profile-alessandro';
+        document.getElementById('detailBadges').innerHTML = `
+          <span class="badge ${profClass}">${note.profile}</span>
+          <span class="badge badge-subject">${note.subject}</span>
+          <span class="badge" style="background: #1E293B; color: #94A3B8;">${note.created_at || ''}</span>
+        `;
+
+        const sumBox = document.getElementById('detailSummary');
+        if (note.summary) {
+          sumBox.innerHTML = `<strong>💡 Sommario Esecutivo:</strong><br>${note.summary}`;
+          sumBox.style.display = 'block';
+        } else {
+          sumBox.style.display = 'none';
+        }
+
+        // Render Markdown con evidenziazione badge audio non chiaro
+        let htmlBody = this.renderMarkdown(note.content_markdown || '');
+        document.getElementById('detailBody').innerHTML = htmlBody;
+
+        document.getElementById('detailOverlay').classList.add('active');
+      },
+
+      closeDetail: function() {
+        document.getElementById('detailOverlay').classList.remove('active');
+      },
+
+      // Lightweight Markdown + LaTeX & Unclear Audio Highlighter
+      renderMarkdown: function(md) {
+        if (!md) return '';
+        let escaped = md
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+
+        // Evidenziazione badge d'aula: [Audio non chiaro da MM:SS a MM:SS]
+        escaped = escaped.replace(/\[(?:AUDIO_NON_CHIARO|Audio non chiaro)[^\]]*\]/gi, (match) => {
+          return `<span class="unclear-audio-tag">⚠️ ${match.replace(/\[|\]/g, '')}</span>`;
+        });
+
+        // Headers
+        escaped = escaped.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+        escaped = escaped.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+        escaped = escaped.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+        // Bold & Italic
+        escaped = escaped.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+        escaped = escaped.replace(/\*(.*?)\*/gim, '<em>$1</em>');
+
+        // Inline Math LaTeX
+        escaped = escaped.replace(/\$([^\$]+)\$/g, '<code style="background: rgba(56, 189, 248, 0.15); color: #38BDF8; padding: 2px 5px; border-radius: 4px;">$1</code>');
+
+        // Paragrafi
+        escaped = escaped.split('\n\n').map(p => {
+          if (p.startsWith('<h') || p.startsWith('<span class="unclear')) return p;
+          return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+        }).join('');
+
+        return escaped;
+      },
+
+      // -----------------------------------------------------------------------
+      // RENDERING FLASHCARD INTERATTIVE
+      // -----------------------------------------------------------------------
+      setFcProfileFilter: function(prof, btn) {
+        this.fcFilterProfile = prof;
+        document.querySelectorAll('#fcProfileFilterPills .fpill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentFcIndex = 0;
+        this.renderFlashcards();
+      },
+
+      renderFlashcards: function() {
+        const container = document.getElementById('flashcardBoxContainer');
+        if (!container) return;
+
+        if (!this.libraryData || !this.libraryData.flashcards || this.libraryData.flashcards.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">🧠</div>
+              <div style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin-bottom: 4px;">Nessuna Flashcard Disponibile</div>
+              <div style="font-size: 12.5px;">Estrai le flashcard dalle lezioni sul PC e aggiorna la libreria.</div>
+            </div>
+          `;
+          return;
+        }
+
+        this.activeFlashcards = this.libraryData.flashcards.filter(fc => {
+          if (this.fcFilterProfile !== 'ALL' && fc.profile !== this.fcFilterProfile) return false;
+          return true;
+        });
+
+        if (this.activeFlashcards.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div style="font-size: 14px; color: #FFFFFF;">Nessuna flashcard per questo profilo.</div>
+            </div>
+          `;
+          return;
+        }
+
+        if (this.currentFcIndex >= this.activeFlashcards.length) this.currentFcIndex = 0;
+        const current = this.activeFlashcards[this.currentFcIndex];
+        const total = this.activeFlashcards.length;
+
+        container.innerHTML = `
+          <div id="activeFcBox" class="fc-box" onclick="this.classList.toggle('flipped')">
+            <div class="fc-indicator">${current.subject} • Card ${this.currentFcIndex + 1} di ${total}</div>
+            <div class="fc-question">${current.question}</div>
+            <div class="fc-answer">${current.answer}</div>
+            <div class="fc-prompt">👆 Tocca la card per mostrare la risposta</div>
+          </div>
+
+          <div class="fc-controls">
+            <button class="btn btn-outline" style="width: auto; padding: 9px 18px;" onclick="app.prevFlashcard()">⬅ Precedente</button>
+            <button class="btn btn-outline" style="width: auto; padding: 9px 14px;" onclick="app.shuffleFlashcards()" title="Mischia">🔀</button>
+            <button class="btn btn-primary" style="width: auto; padding: 9px 18px;" onclick="app.nextFlashcard()">Prossima ➔</button>
+          </div>
+        `;
+      },
+
+      nextFlashcard: function() {
+        if (this.activeFlashcards.length === 0) return;
+        this.currentFcIndex = (this.currentFcIndex + 1) % this.activeFlashcards.length;
+        this.renderFlashcards();
+      },
+
+      prevFlashcard: function() {
+        if (this.activeFlashcards.length === 0) return;
+        this.currentFcIndex = (this.currentFcIndex - 1 + this.activeFlashcards.length) % this.activeFlashcards.length;
+        this.renderFlashcards();
+      },
+
+      shuffleFlashcards: function() {
+        if (this.activeFlashcards.length <= 1) return;
+        for (let i = this.activeFlashcards.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [this.activeFlashcards[i], this.activeFlashcards[j]] = [this.activeFlashcards[j], this.activeFlashcards[i]];
+        }
+        this.currentFcIndex = 0;
+        this.renderFlashcards();
+        this.showToast('🔀 Flashcard rimescolate!');
+      }
+    };
+
+    window.addEventListener('DOMContentLoaded', () => app.init());
+  </script>
+</body>
+</html>
+
