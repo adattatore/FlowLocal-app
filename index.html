@@ -539,6 +539,7 @@
       border: 1px solid rgba(56, 189, 248, 0.4);
     }
 
+    .badge-profile-giada,
     .badge-profile-lei {
       background: rgba(168, 85, 247, 0.18);
       color: #C084FC;
@@ -874,29 +875,28 @@
           <div class="segmented-control">
             <button type="button" class="seg-btn active"
               onclick="app.setProfile('Alessandro', this)">Alessandro</button>
-            <button type="button" class="seg-btn" onclick="app.setProfile('Lei', this)">Lei</button>
+            <button type="button" class="seg-btn" onclick="app.setProfile('Giada', this)">Giada</button>
           </div>
         </div>
 
         <!-- Materia / Corso -->
         <div class="form-group">
           <label>Materia / Corso</label>
-          <input type="text" id="subjectInput" placeholder="Es. Diritto Sanitario, Fisica 2..."
-            value="Diritto Sanitario">
-          <div class="chip-container">
-            <span class="chip active" onclick="app.selectSubjectChip('Diritto Sanitario', this)">Diritto
-              Sanitario</span>
-            <span class="chip" onclick="app.selectSubjectChip('Fisica 2', this)">Fisica 2</span>
-            <span class="chip" onclick="app.selectSubjectChip('Analisi Matematica', this)">Analisi</span>
-            <span class="chip" onclick="app.selectSubjectChip('Anatomia Clinica', this)">Anatomia</span>
-            <span class="chip" onclick="app.selectSubjectChip('Informatica', this)">Informatica</span>
+          <input type="text" id="subjectInput" placeholder="Es. Meccanica dei Robot, Sistemi Dinamici..."
+            value="" oninput="app.onSubjectInput(this.value)" onchange="if(this.value.trim()) app.saveRecentSubject(this.value.trim());">
+          <div class="chip-container" id="subjectChipsContainer">
+            <span class="chip" onclick="app.selectSubjectChip('Meccanica dei Robot', this)">Meccanica dei Robot</span>
+            <span class="chip" onclick="app.selectSubjectChip('Azionamenti Elettrici', this)">Azionamenti Elettrici</span>
+            <span class="chip" onclick="app.selectSubjectChip('Reti Wireless', this)">Reti Wireless</span>
+            <span class="chip" onclick="app.selectSubjectChip('Fisica 1', this)">Fisica 1</span>
+            <span class="chip" onclick="app.selectSubjectChip('Sistemi Dinamici', this)">Sistemi Dinamici</span>
           </div>
         </div>
 
         <!-- Titolo / Note Aggiuntive -->
         <div class="form-group">
           <label>Titolo Lezione (Opzionale)</label>
-          <input type="text" id="titleInput" placeholder="Es. Lezione 3 - Colpa grave e linee guida">
+          <input type="text" id="titleInput" placeholder="Es. Lezione 3 - Cinematica braccio robotico, Teorema di Gauss...">
         </div>
 
         <!-- REGISTRATORE MICROFONO BROWSER -->
@@ -951,7 +951,7 @@
       <div class="filter-pills" id="profileFilterPills">
         <button class="fpill active" onclick="app.setLibraryProfileFilter('ALL', this)">Tutti i Profili</button>
         <button class="fpill" onclick="app.setLibraryProfileFilter('Alessandro', this)">Alessandro</button>
-        <button class="fpill" onclick="app.setLibraryProfileFilter('Lei', this)">Lei</button>
+        <button class="fpill" onclick="app.setLibraryProfileFilter('Giada', this)">Giada</button>
       </div>
 
       <div class="filter-pills" id="subjectFilterPills">
@@ -966,7 +966,7 @@
       <div class="filter-pills" id="fcProfileFilterPills">
         <button class="fpill active" onclick="app.setFcProfileFilter('ALL', this)">Tutti</button>
         <button class="fpill" onclick="app.setFcProfileFilter('Alessandro', this)">Alessandro</button>
-        <button class="fpill" onclick="app.setFcProfileFilter('Lei', this)">Lei</button>
+        <button class="fpill" onclick="app.setFcProfileFilter('Giada', this)">Giada</button>
       </div>
 
       <div id="flashcardBoxContainer">
@@ -1182,6 +1182,7 @@
         this.updateOnlineStatus();
         window.addEventListener('online', () => this.updateOnlineStatus());
         window.addEventListener('offline', () => this.updateOnlineStatus());
+        this.renderSubjectChips();
 
         let savedClientId = (localStorage.getItem('flowlocal_google_client_id') || '').trim();
         // Se localStorage non contiene un client_id valido che termina con .apps.googleusercontent.com, usa e salva automaticamente DEFAULT_GOOGLE_CLIENT_ID
@@ -1254,10 +1255,87 @@
         btn.classList.add('active');
       },
 
+      getRecentSubjects: function () {
+        const defaultList = [
+          'Meccanica dei Robot',
+          'Azionamenti Elettrici',
+          'Reti Wireless',
+          'Fisica 1',
+          'Sistemi Dinamici'
+        ];
+        try {
+          const raw = localStorage.getItem('flowlocal_recent_subjects');
+          if (!raw) return defaultList;
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const cleaned = parsed
+              .filter(s => typeof s === 'string' && s.trim() && s.trim().toLowerCase() !== 'diritto sanitario')
+              .map(s => s.trim());
+            return cleaned.length > 0 ? cleaned : defaultList;
+          }
+        } catch (e) {
+          console.error('Errore lettura recent_subjects:', e);
+        }
+        return defaultList;
+      },
+
+      saveRecentSubject: function (subject) {
+        if (!subject) return;
+        const trimmed = subject.trim();
+        if (!trimmed || trimmed.toLowerCase() === 'generale' || trimmed.toLowerCase() === 'diritto sanitario') return;
+
+        let list = this.getRecentSubjects();
+        list = list.filter(s => s.toLowerCase() !== trimmed.toLowerCase());
+        list.unshift(trimmed);
+        if (list.length > 8) {
+          list = list.slice(0, 8);
+        }
+        try {
+          localStorage.setItem('flowlocal_recent_subjects', JSON.stringify(list));
+        } catch (e) {
+          console.error('Errore salvataggio recent_subjects:', e);
+        }
+        this.renderSubjectChips();
+      },
+
+      renderSubjectChips: function () {
+        const container = document.getElementById('subjectChipsContainer');
+        if (!container) return;
+        const currentVal = (document.getElementById('subjectInput')?.value || '').trim().toLowerCase();
+        const list = this.getRecentSubjects();
+
+        container.innerHTML = '';
+        list.forEach(subj => {
+          const chip = document.createElement('span');
+          chip.className = 'chip' + (currentVal && subj.toLowerCase() === currentVal ? ' active' : '');
+          chip.textContent = subj;
+          chip.onclick = () => this.selectSubjectChip(subj, chip);
+          container.appendChild(chip);
+        });
+      },
+
+      onSubjectInput: function (val) {
+        const trimmed = (val || '').trim().toLowerCase();
+        document.querySelectorAll('#subjectChipsContainer .chip').forEach(c => {
+          if (trimmed && c.textContent.trim().toLowerCase() === trimmed) {
+            c.classList.add('active');
+          } else {
+            c.classList.remove('active');
+          }
+        });
+      },
+
       selectSubjectChip: function (subject, chip) {
-        document.getElementById('subjectInput').value = subject;
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
+        const input = document.getElementById('subjectInput');
+        if (!input) return;
+        if (input.value.trim().toLowerCase() === subject.trim().toLowerCase() && chip && chip.classList.contains('active')) {
+          input.value = '';
+          chip.classList.remove('active');
+        } else {
+          input.value = subject;
+          document.querySelectorAll('#subjectChipsContainer .chip').forEach(c => c.classList.remove('active'));
+          if (chip) chip.classList.add('active');
+        }
       },
 
       // -----------------------------------------------------------------------
@@ -1539,6 +1617,9 @@
                   }
 
                   const subject = document.getElementById('subjectInput').value.trim() || 'Generale';
+                  if (subject && subject !== 'Generale') {
+                    this.saveRecentSubject(subject);
+                  }
                   const customTitle = document.getElementById('titleInput').value.trim() || this.selectedFileName;
                   const filename = this.selectedFileName || `audio_${Date.now()}.m4a`;
 
@@ -1721,7 +1802,8 @@
                   const query = (document.getElementById('librarySearchInput') ? document.getElementById('librarySearchInput').value.toLowerCase().trim() : '');
 
                   const filtered = this.libraryData.notes.filter(n => {
-                    if (this.libFilterProfile !== 'ALL' && n.profile !== this.libFilterProfile) return false;
+                    const normProf = (n.profile === 'Lei') ? 'Giada' : (n.profile || 'Alessandro');
+                    if (this.libFilterProfile !== 'ALL' && normProf !== this.libFilterProfile) return false;
                     if (this.libFilterSubject !== 'ALL' && n.subject !== this.libFilterSubject) return false;
                     if (query) {
                       const t = (n.title || '').toLowerCase();
@@ -1744,7 +1826,8 @@
 
                   let cardsHtml = '';
                   filtered.forEach(note => {
-                    const profClass = note.profile === 'Lei' ? 'badge-profile-lei' : 'badge-profile-alessandro';
+                    const displayProf = (note.profile === 'Lei') ? 'Giada' : (note.profile || 'Alessandro');
+                    const profClass = displayProf === 'Giada' ? 'badge-profile-giada' : 'badge-profile-alessandro';
                     const summaryPreview = note.summary ? note.summary : (note.content_markdown || '').slice(0, 140) + '...';
                     const dateStr = note.created_at ? note.created_at.slice(0, 10) : '';
 
@@ -1752,7 +1835,7 @@
             <div class="note-card" onclick="app.openDetail(${note.id})">
               <div class="note-meta">
                 <div style="display: flex; gap: 5px;">
-                  <span class="badge ${profClass}">${note.profile}</span>
+                  <span class="badge ${profClass}">${displayProf}</span>
                   <span class="badge badge-subject">${note.subject}</span>
                 </div>
                 <span class="note-date">${dateStr}</span>
@@ -1773,9 +1856,10 @@
 
                   document.getElementById('detailTitle').textContent = note.title;
 
-                  const profClass = note.profile === 'Lei' ? 'badge-profile-lei' : 'badge-profile-alessandro';
+                  const displayProf = (note.profile === 'Lei') ? 'Giada' : (note.profile || 'Alessandro');
+                  const profClass = displayProf === 'Giada' ? 'badge-profile-giada' : 'badge-profile-alessandro';
                   document.getElementById('detailBadges').innerHTML = `
-          <span class="badge ${profClass}">${note.profile}</span>
+          <span class="badge ${profClass}">${displayProf}</span>
           <span class="badge badge-subject">${note.subject}</span>
           <span class="badge" style="background: #1E293B; color: #94A3B8;">${note.created_at || ''}</span>
         `;
@@ -1860,7 +1944,8 @@
                   }
 
                   this.activeFlashcards = this.libraryData.flashcards.filter(fc => {
-                    if (this.fcFilterProfile !== 'ALL' && fc.profile !== this.fcFilterProfile) return false;
+                    const normProf = (fc.profile === 'Lei') ? 'Giada' : (fc.profile || 'Alessandro');
+                    if (this.fcFilterProfile !== 'ALL' && normProf !== this.fcFilterProfile) return false;
                     return true;
                   });
 

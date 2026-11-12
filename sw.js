@@ -1,5 +1,5 @@
 // Service Worker per FlowLocal Mobile PWA (Modalità Offline in Aula)
-const CACHE_NAME = 'flowlocal-pwa-v4';
+const CACHE_NAME = 'flowlocal-pwa-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
