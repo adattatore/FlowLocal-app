@@ -1082,11 +1082,26 @@
 
   <!-- APPLICATION LOGIC & GOOGLE DRIVE API CLIENT -->
   <script>
-    // Inizializzazione Service Worker per uso offline
+    // Configurazione Predefinita Google Identity Services
+    const DEFAULT_GOOGLE_CLIENT_ID = "<INCOLLA_QUI_IL_TUO_CLIENT_ID>".trim();
+
+    // Inizializzazione Service Worker per uso offline e reload automatico all'aggiornamento
     if ('serviceWorker' in navigator) {
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          console.log('[PWA] Nuovo Service Worker attivo, ricarico la pagina per applicare la nuova build...');
+          window.location.reload();
+        }
+      });
+
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then((reg) => console.log('[PWA] Service Worker registrato con scope:', reg.scope))
+          .then((reg) => {
+            console.log('[PWA] Service Worker registrato con scope:', reg.scope);
+            reg.update();
+          })
           .catch((err) => console.warn('[PWA] Errore Service Worker:', err));
       });
     }
@@ -1168,7 +1183,15 @@
         window.addEventListener('online', () => this.updateOnlineStatus());
         window.addEventListener('offline', () => this.updateOnlineStatus());
 
-        const savedClientId = (localStorage.getItem('flowlocal_google_client_id') || '').trim();
+        let savedClientId = (localStorage.getItem('flowlocal_google_client_id') || '').trim();
+        // Se localStorage non contiene un client_id valido che termina con .apps.googleusercontent.com, usa e salva automaticamente DEFAULT_GOOGLE_CLIENT_ID
+        if (!savedClientId || !savedClientId.endsWith('.apps.googleusercontent.com')) {
+          if (DEFAULT_GOOGLE_CLIENT_ID) {
+            savedClientId = DEFAULT_GOOGLE_CLIENT_ID;
+            localStorage.setItem('flowlocal_google_client_id', savedClientId);
+          }
+        }
+
         if (savedClientId) {
           const el = document.getElementById('googleClientIdInput');
           if (el) el.value = savedClientId;
@@ -1358,31 +1381,34 @@
 
       connectGoogleDrive: function () {
         const inputEl = document.getElementById('googleClientIdInput');
-        let clientId = inputEl ? inputEl.value.trim() : '';
-        if (!clientId) {
-          clientId = (localStorage.getItem('flowlocal_google_client_id') || '').trim();
+        let activeClientId = inputEl ? inputEl.value.trim() : '';
+        if (!activeClientId) {
+          activeClientId = (localStorage.getItem('flowlocal_google_client_id') || '').trim();
+        }
+        if (!activeClientId && DEFAULT_GOOGLE_CLIENT_ID) {
+          activeClientId = DEFAULT_GOOGLE_CLIENT_ID.trim();
         }
 
-        if (inputEl && clientId) {
-          inputEl.value = clientId;
+        if (inputEl && activeClientId) {
+          inputEl.value = activeClientId;
         }
 
-        if (!clientId) {
-          alert('Inserisci prima il tuo Google OAuth Client ID nelle impostazioni.');
+        if (!activeClientId || activeClientId === '<INCOLLA_QUI_IL_TUO_CLIENT_ID>') {
+          alert('Google Client ID mancante o non configurato!\n\nImposta il tuo Client ID nelle Impostazioni oppure aggiorna la costante DEFAULT_GOOGLE_CLIENT_ID nel codice sorgente della PWA.');
           this.showTab('settings');
           if (inputEl) inputEl.focus();
           return;
         }
 
-        if (!clientId.endsWith('.apps.googleusercontent.com')) {
-          alert('Il Google Client ID non sembra valido.\n\nDeve terminare con ".apps.googleusercontent.com"\n(es. 123456789-abcdef.apps.googleusercontent.com).\n\nVerifica di aver copiato l\'intero Client ID per applicazione Web dalla Google Cloud Console.');
+        if (!activeClientId.endsWith('.apps.googleusercontent.com')) {
+          alert('Google Client ID non valido o malformato!\n\nValore rilevato: "' + activeClientId + '"\n\nDeve terminare obbligatoriamente con ".apps.googleusercontent.com" (es. 123456789-abcdef.apps.googleusercontent.com).\n\nVerifica di aver copiato l\'intero Client ID per applicazione Web dalla Google Cloud Console.');
           this.showTab('settings');
           if (inputEl) inputEl.focus();
           return;
         }
 
         // Salva il client ID sanificato
-        localStorage.setItem('flowlocal_google_client_id', clientId);
+        localStorage.setItem('flowlocal_google_client_id', activeClientId);
 
         if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
           alert('Libreria Google Identity Services non ancora caricata o bloccata.\nVerifica la connessione a Internet o disattiva eventuali estensioni ad-block.');
@@ -1390,11 +1416,12 @@
         }
 
         // Re-inizializza il client OAuth se non ancora inizializzato o se il client_id è cambiato
-        if (!this.tokenClient || this.initializedClientId !== clientId) {
+        if (!this.tokenClient || this.initializedClientId !== activeClientId) {
           try {
             this.tokenClient = google.accounts.oauth2.initTokenClient({
-              client_id: clientId,
+              client_id: activeClientId.trim(),
               scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive',
+              ux_mode: 'popup',
               callback: (resp) => {
                 if (resp.access_token) {
                   this.accessToken = resp.access_token;
@@ -1410,9 +1437,9 @@
                 }
               }
             });
-            this.initializedClientId = clientId;
+            this.initializedClientId = activeClientId;
           } catch (initErr) {
-            alert('Errore inizializzazione Google Identity Services:\n' + initErr.message);
+            alert('Errore diagnostico inizializzazione Google Identity Services:\n' + initErr.message + '\n\nClient ID usato: ' + activeClientId);
             return;
           }
         }
