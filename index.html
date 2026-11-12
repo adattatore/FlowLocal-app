@@ -1083,7 +1083,7 @@
   <!-- APPLICATION LOGIC & GOOGLE DRIVE API CLIENT -->
   <script>
     // Configurazione Predefinita Google Identity Services
-    const DEFAULT_GOOGLE_CLIENT_ID = "<INCOLLA_QUI_IL_TUO_CLIENT_ID>".trim();
+    const DEFAULT_GOOGLE_CLIENT_ID = "532605028528-c3cq37jq830oqiejk84lppmak26i9up7.apps.googleusercontent.com".trim();
 
     // Inizializzazione Service Worker per uso offline e reload automatico all'aggiornamento
     if ('serviceWorker' in navigator) {
@@ -1381,374 +1381,374 @@
 
       connectGoogleDrive: function () {
         const inputEl = document.getElementById('googleClientIdInput');
-        let activeClientId = inputEl ? inputEl.value.trim() : '';
-        if (!activeClientId) {
-          activeClientId = (localStorage.getItem('flowlocal_google_client_id') || '').trim();
-        }
-        if (!activeClientId && DEFAULT_GOOGLE_CLIENT_ID) {
-          activeClientId = DEFAULT_GOOGLE_CLIENT_ID.trim();
-        }
+          let activeClientId = inputEl ? inputEl.value.trim() : '';
+          if (!activeClientId) {
+            activeClientId = (localStorage.getItem('flowlocal_google_client_id') || '').trim();
+          }
+          if (!activeClientId && DEFAULT_GOOGLE_CLIENT_ID) {
+            activeClientId = DEFAULT_GOOGLE_CLIENT_ID.trim();
+          }
 
-        if (inputEl && activeClientId) {
-          inputEl.value = activeClientId;
-        }
+            if (inputEl && activeClientId) {
+              inputEl.value = activeClientId;
+            }
 
-        if (!activeClientId || activeClientId === '<INCOLLA_QUI_IL_TUO_CLIENT_ID>') {
-          alert('Google Client ID mancante o non configurato!\n\nImposta il tuo Client ID nelle Impostazioni oppure aggiorna la costante DEFAULT_GOOGLE_CLIENT_ID nel codice sorgente della PWA.');
-          this.showTab('settings');
-          if (inputEl) inputEl.focus();
-          return;
-        }
-
-        if (!activeClientId.endsWith('.apps.googleusercontent.com')) {
-          alert('Google Client ID non valido o malformato!\n\nValore rilevato: "' + activeClientId + '"\n\nDeve terminare obbligatoriamente con ".apps.googleusercontent.com" (es. 123456789-abcdef.apps.googleusercontent.com).\n\nVerifica di aver copiato l\'intero Client ID per applicazione Web dalla Google Cloud Console.');
-          this.showTab('settings');
-          if (inputEl) inputEl.focus();
-          return;
-        }
-
-        // Salva il client ID sanificato
-        localStorage.setItem('flowlocal_google_client_id', activeClientId);
-
-        if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
-          alert('Libreria Google Identity Services non ancora caricata o bloccata.\nVerifica la connessione a Internet o disattiva eventuali estensioni ad-block.');
-          return;
-        }
-
-        // Re-inizializza il client OAuth se non ancora inizializzato o se il client_id è cambiato
-        if (!this.tokenClient || this.initializedClientId !== activeClientId) {
-          try {
-            this.tokenClient = google.accounts.oauth2.initTokenClient({
-              client_id: activeClientId.trim(),
-              scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive',
-              ux_mode: 'popup',
-              callback: (resp) => {
-                if (resp.access_token) {
-                  this.accessToken = resp.access_token;
-                  this.tokenExpiry = Date.now() + ((parseInt(resp.expires_in, 10) || 3600) * 1000);
-                  localStorage.setItem('flowlocal_drive_token', this.accessToken);
-                  localStorage.setItem('flowlocal_drive_token_expires', this.tokenExpiry.toString());
-                  this.updateOnlineStatus();
-                  this.showToast('Google Drive collegato con successo!');
-                  this.syncFromDrive();
-                } else if (resp.error) {
-                  const desc = resp.error_description ? `\n${resp.error_description}` : '';
-                  alert('Errore autorizzazione Google: ' + resp.error + desc);
-                }
+              if (!activeClientId || activeClientId === '<INCOLLA_QUI_IL_TUO_CLIENT_ID>') {
+                alert('Google Client ID mancante o non configurato!\n\nImposta il tuo Client ID nelle Impostazioni oppure aggiorna la costante DEFAULT_GOOGLE_CLIENT_ID nel codice sorgente della PWA.');
+                this.showTab('settings');
+                if (inputEl) inputEl.focus();
+                return;
               }
-            });
-            this.initializedClientId = activeClientId;
-          } catch (initErr) {
-            alert('Errore diagnostico inizializzazione Google Identity Services:\n' + initErr.message + '\n\nClient ID usato: ' + activeClientId);
-            return;
-          }
-        }
 
-        this.tokenClient.requestAccessToken({ prompt: 'consent' });
-      },
+                if (!activeClientId.endsWith('.apps.googleusercontent.com')) {
+                  alert('Google Client ID non valido o malformato!\n\nValore rilevato: "' + activeClientId + '"\n\nDeve terminare obbligatoriamente con ".apps.googleusercontent.com" (es. 123456789-abcdef.apps.googleusercontent.com).\n\nVerifica di aver copiato l\'intero Client ID per applicazione Web dalla Google Cloud Console.');
+                  this.showTab('settings');
+                  if (inputEl) inputEl.focus();
+                  return;
+                }
 
-      // Helper per trovare o creare cartella su Google Drive
-      findOrCreateFolder: async function (name, parentId = null) {
-        let q = `mimeType = 'application/vnd.google-apps.folder' and name = '${name}' and trashed = false`;
-        if (parentId) {
-          q += ` and '${parentId}' in parents`;
-        }
-        const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name)`, {
-          headers: { 'Authorization': `Bearer ${this.accessToken}` }
-        });
-        const data = await searchRes.json();
-        if (data.files && data.files.length > 0) {
-          return data.files[0].id;
-        }
+                // Salva il client ID sanificato
+                localStorage.setItem('flowlocal_google_client_id', activeClientId);
 
-        // Creazione cartella se non trovata
-        const meta = { name: name, mimeType: 'application/vnd.google-apps.folder' };
-        if (parentId) meta.parents = [parentId];
-        const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.accessToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(meta)
-        });
-        const created = await createRes.json();
-        return created.id;
-      },
+                if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+                  alert('Libreria Google Identity Services non ancora caricata o bloccata.\nVerifica la connessione a Internet o disattiva eventuali estensioni ad-block.');
+                  return;
+                }
 
-      // Carica file su Google Drive via Multipart Upload
-      uploadFileToDrive: async function (fileBlob, filename, parentFolderId, mimeType = null) {
-        const metadata = {
-          name: filename,
-          parents: [parentFolderId]
-        };
+                // Re-inizializza il client OAuth se non ancora inizializzato o se il client_id è cambiato
+                  if (!this.tokenClient || this.initializedClientId !== activeClientId) {
+                    try {
+                      this.tokenClient = google.accounts.oauth2.initTokenClient({
+                        client_id: activeClientId.trim(),
+                        scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive',
+                        ux_mode: 'popup',
+                        callback: (resp) => {
+                          if (resp.access_token) {
+                            this.accessToken = resp.access_token;
+                            this.tokenExpiry = Date.now() + ((parseInt(resp.expires_in, 10) || 3600) * 1000);
+                            localStorage.setItem('flowlocal_drive_token', this.accessToken);
+                            localStorage.setItem('flowlocal_drive_token_expires', this.tokenExpiry.toString());
+                            this.updateOnlineStatus();
+                            this.showToast('Google Drive collegato con successo!');
+                            this.syncFromDrive();
+                          } else if (resp.error) {
+                            const desc = resp.error_description ? `\n${resp.error_description}` : '';
+                            alert('Errore autorizzazione Google: ' + resp.error + desc);
+                          }
+                        }
+                      });
+                      this.initializedClientId = activeClientId;
+                    } catch (initErr) {
+                      alert('Errore diagnostico inizializzazione Google Identity Services:\n' + initErr.message + '\n\nClient ID usato: ' + activeClientId);
+                      return;
+                    }
+                  }
 
-        const boundary = '-------FlowLocalMultipartBoundary';
-        const delimiter = `\r\n--${boundary}\r\n`;
-        const closeDelim = `\r\n--${boundary}--`;
+                  this.tokenClient.requestAccessToken({ prompt: 'consent' });
+                },
 
-        const effectiveMime = mimeType || fileBlob.type || 'application/octet-stream';
+                // Helper per trovare o creare cartella su Google Drive
+                findOrCreateFolder: async function (name, parentId = null) {
+                  let q = `mimeType = 'application/vnd.google-apps.folder' and name = '${name}' and trashed = false`;
+                  if (parentId) {
+                    q += ` and '${parentId}' in parents`;
+                  }
+                  const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name)`, {
+                    headers: { 'Authorization': `Bearer ${this.accessToken}` }
+                  });
+                  const data = await searchRes.json();
+                  if (data.files && data.files.length > 0) {
+                    return data.files[0].id;
+                  }
 
-        // Convertiamo il file blob in ArrayBuffer per costruire il body binario
-        const fileBuffer = await fileBlob.arrayBuffer();
-        const metaPart = `${delimiter}Content-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}${delimiter}Content-Type: ${effectiveMime}\r\n\r\n`;
+                  // Creazione cartella se non trovata
+                  const meta = { name: name, mimeType: 'application/vnd.google-apps.folder' };
+                  if (parentId) meta.parents = [parentId];
+                  const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Bearer ${this.accessToken}`,
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(meta)
+                  });
+                  const created = await createRes.json();
+                  return created.id;
+                },
 
-        const encoder = new TextEncoder();
-        const metaBytes = encoder.encode(metaPart);
-        const closeBytes = encoder.encode(closeDelim);
+                // Carica file su Google Drive via Multipart Upload
+                uploadFileToDrive: async function (fileBlob, filename, parentFolderId, mimeType = null) {
+                  const metadata = {
+                    name: filename,
+                    parents: [parentFolderId]
+                  };
 
-        const totalLength = metaBytes.length + fileBuffer.byteLength + closeBytes.length;
-        const combined = new Uint8Array(totalLength);
-        combined.set(metaBytes, 0);
-        combined.set(new Uint8Array(fileBuffer), metaBytes.length);
-        combined.set(closeBytes, metaBytes.length + fileBuffer.byteLength);
+                  const boundary = '-------FlowLocalMultipartBoundary';
+                  const delimiter = `\r\n--${boundary}\r\n`;
+                  const closeDelim = `\r\n--${boundary}--`;
 
-        const uploadRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.accessToken}`,
-            'Content-Type': `multipart/related; boundary=${boundary}`
-          },
-          body: combined
-        });
+                  const effectiveMime = mimeType || fileBlob.type || 'application/octet-stream';
 
-        if (!uploadRes.ok) {
-          const errText = await uploadRes.text();
-          throw new Error(`Upload fallito (${uploadRes.status}): ${errText}`);
-        }
-        return await uploadRes.json();
-      },
+                  // Convertiamo il file blob in ArrayBuffer per costruire il body binario
+                  const fileBuffer = await fileBlob.arrayBuffer();
+                  const metaPart = `${delimiter}Content-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}${delimiter}Content-Type: ${effectiveMime}\r\n\r\n`;
 
-      // -----------------------------------------------------------------------
-      // UPLOAD AUDIO JOB (Audio + .meta.json in FlowLocal_Sync/inbox_audio/)
-      // -----------------------------------------------------------------------
-      uploadAudioJob: async function () {
-        if (!this.selectedFileBlob) {
-          alert('Nessun audio registrato o selezionato. Registra una lezione o scegli un file.');
-          return;
-        }
+                  const encoder = new TextEncoder();
+                  const metaBytes = encoder.encode(metaPart);
+                  const closeBytes = encoder.encode(closeDelim);
 
-        if (!navigator.onLine) {
-          alert('Sei in modalità offline. Connettiti a Internet per caricare la registrazione su Google Drive.');
-          return;
-        }
+                  const totalLength = metaBytes.length + fileBuffer.byteLength + closeBytes.length;
+                  const combined = new Uint8Array(totalLength);
+                  combined.set(metaBytes, 0);
+                  combined.set(new Uint8Array(fileBuffer), metaBytes.length);
+                  combined.set(closeBytes, metaBytes.length + fileBuffer.byteLength);
 
-        if (!this.isTokenValid()) {
-          this.connectGoogleDrive();
-          return;
-        }
+                  const uploadRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Bearer ${this.accessToken}`,
+                      'Content-Type': `multipart/related; boundary=${boundary}`
+                    },
+                    body: combined
+                  });
 
-        const subject = document.getElementById('subjectInput').value.trim() || 'Generale';
-        const customTitle = document.getElementById('titleInput').value.trim() || this.selectedFileName;
-        const filename = this.selectedFileName || `audio_${Date.now()}.m4a`;
+                  if (!uploadRes.ok) {
+                    const errText = await uploadRes.text();
+                    throw new Error(`Upload fallito (${uploadRes.status}): ${errText}`);
+                  }
+                  return await uploadRes.json();
+                },
 
-        const btn = document.getElementById('uploadSubmitBtn');
-        const pBox = document.getElementById('uploadProgressBox');
-        const pBar = document.getElementById('uploadProgressBar');
+                // -----------------------------------------------------------------------
+                // UPLOAD AUDIO JOB (Audio + .meta.json in FlowLocal_Sync/inbox_audio/)
+                // -----------------------------------------------------------------------
+                uploadAudioJob: async function () {
+                  if (!this.selectedFileBlob) {
+                    alert('Nessun audio registrato o selezionato. Registra una lezione o scegli un file.');
+                    return;
+                  }
 
-        btn.disabled = true;
-        btn.textContent = '⏳ Caricamento su Google Drive...';
-        pBox.style.display = 'block';
-        pBar.style.width = '20%';
+                  if (!navigator.onLine) {
+                    alert('Sei in modalità offline. Connettiti a Internet per caricare la registrazione su Google Drive.');
+                    return;
+                  }
 
-        try {
-          // 1. Assicura le cartelle su Google Drive: FlowLocal_Sync -> inbox_audio
-          const syncFolderId = await this.findOrCreateFolder('FlowLocal_Sync');
-          const inboxFolderId = await this.findOrCreateFolder('inbox_audio', syncFolderId);
-          pBar.style.width = '45%';
+                  if (!this.isTokenValid()) {
+                    this.connectGoogleDrive();
+                    return;
+                  }
 
-          // 2. Carica il file audio
-          await this.uploadFileToDrive(this.selectedFileBlob, filename, inboxFolderId);
-          pBar.style.width = '80%';
+                  const subject = document.getElementById('subjectInput').value.trim() || 'Generale';
+                  const customTitle = document.getElementById('titleInput').value.trim() || this.selectedFileName;
+                  const filename = this.selectedFileName || `audio_${Date.now()}.m4a`;
 
-          // 3. Carica il file companion .meta.json
-          const metaPayload = {
-            profile: this.profile,
-            subject: subject,
-            title: customTitle,
-            created_at: new Date().toISOString()
-          };
-          const metaBlob = new Blob([JSON.stringify(metaPayload, null, 2)], { type: 'application/json' });
-          await this.uploadFileToDrive(metaBlob, `${filename}.meta.json`, inboxFolderId, 'application/json');
+                  const btn = document.getElementById('uploadSubmitBtn');
+                  const pBox = document.getElementById('uploadProgressBox');
+                  const pBar = document.getElementById('uploadProgressBar');
 
-          pBar.style.width = '100%';
-          this.showToast('✅ Audio inviato alla Coda Cloud!');
+                  btn.disabled = true;
+                  btn.textContent = '⏳ Caricamento su Google Drive...';
+                  pBox.style.display = 'block';
+                  pBar.style.width = '20%';
 
-          alert(`Registrazione caricata con successo su Google Drive!\n\nFile: ${filename}\nProfilo: ${this.profile}\nMateria: ${subject}\n\nIl PC elaborerà l'audio non appena cliccherai '▶️ Elabora Coda' nell'Hub.`);
+                  try {
+                    // 1. Assicura le cartelle su Google Drive: FlowLocal_Sync -> inbox_audio
+                    const syncFolderId = await this.findOrCreateFolder('FlowLocal_Sync');
+                    const inboxFolderId = await this.findOrCreateFolder('inbox_audio', syncFolderId);
+                    pBar.style.width = '45%';
 
-          // Reset del form
-          this.cancelRecording();
-          document.getElementById('titleInput').value = '';
-          document.getElementById('fileUploadLabel').textContent = 'Oppure tocca qui per scegliere un file audio dal telefono';
-          document.getElementById('fileUploadSub').textContent = 'Supporta .m4a, .mp3, .mp4, .wav, .aac';
-        } catch (err) {
-          alert('Errore durante il caricamento su Google Drive:\n' + err.message);
-        } finally {
-          btn.disabled = false;
-          btn.textContent = '🚀 Invia alla Coda Cloud del PC';
-          setTimeout(() => pBox.style.display = 'none', 1000);
-        }
-      },
+                    // 2. Carica il file audio
+                    await this.uploadFileToDrive(this.selectedFileBlob, filename, inboxFolderId);
+                    pBar.style.width = '80%';
 
-      // -----------------------------------------------------------------------
-      // SINCRONIZZAZIONE LIBRERIA (outbox_study/library.json)
-      // -----------------------------------------------------------------------
-      syncFromDrive: async function (silent = false) {
-        if (!navigator.onLine) {
-          if (!silent) this.showToast('Sei offline: mostro i dati salvati.');
-          return;
-        }
+                    // 3. Carica il file companion .meta.json
+                    const metaPayload = {
+                      profile: this.profile,
+                      subject: subject,
+                      title: customTitle,
+                      created_at: new Date().toISOString()
+                    };
+                    const metaBlob = new Blob([JSON.stringify(metaPayload, null, 2)], { type: 'application/json' });
+                    await this.uploadFileToDrive(metaBlob, `${filename}.meta.json`, inboxFolderId, 'application/json');
 
-        if (!this.isTokenValid()) {
-          if (!silent) {
-            alert('Google Drive non collegato o sessione scaduta. Clicca su "🔑 Collega Google Drive" nelle impostazioni.');
-            this.showTab('settings');
-          }
-          return;
-        }
+                    pBar.style.width = '100%';
+                    this.showToast('✅ Audio inviato alla Coda Cloud!');
 
-        try {
-          if (!silent) this.showToast('Sincronizzazione con Google Drive...');
+                    alert(`Registrazione caricata con successo su Google Drive!\n\nFile: ${filename}\nProfilo: ${this.profile}\nMateria: ${subject}\n\nIl PC elaborerà l'audio non appena cliccherai '▶️ Elabora Coda' nell'Hub.`);
 
-          // Trova outbox_study
-          const syncFolderId = await this.findOrCreateFolder('FlowLocal_Sync');
-          const outboxFolderId = await this.findOrCreateFolder('outbox_study', syncFolderId);
+                    // Reset del form
+                    this.cancelRecording();
+                    document.getElementById('titleInput').value = '';
+                    document.getElementById('fileUploadLabel').textContent = 'Oppure tocca qui per scegliere un file audio dal telefono';
+                    document.getElementById('fileUploadSub').textContent = 'Supporta .m4a, .mp3, .mp4, .wav, .aac';
+                  } catch (err) {
+                    alert('Errore durante il caricamento su Google Drive:\n' + err.message);
+                  } finally {
+                    btn.disabled = false;
+                    btn.textContent = '🚀 Invia alla Coda Cloud del PC';
+                    setTimeout(() => pBox.style.display = 'none', 1000);
+                  }
+                },
 
-          // Cerca library.json
-          const q = `name = 'library.json' and '${outboxFolderId}' in parents and trashed = false`;
-          const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,modifiedTime)`, {
-            headers: { 'Authorization': `Bearer ${this.accessToken}` }
-          });
-          const list = await res.json();
-          if (!list.files || list.files.length === 0) {
-            if (!silent) alert('Nessun file library.json trovato in FlowLocal_Sync/outbox_study. Clicca su "🔄 Aggiorna Cloud" nel PC per generarlo.');
-            return;
-          }
+                // -----------------------------------------------------------------------
+                // SINCRONIZZAZIONE LIBRERIA (outbox_study/library.json)
+                // -----------------------------------------------------------------------
+                syncFromDrive: async function (silent = false) {
+                  if (!navigator.onLine) {
+                    if (!silent) this.showToast('Sei offline: mostro i dati salvati.');
+                    return;
+                  }
 
-          const fileId = list.files[0].id;
-          const downloadRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-            headers: { 'Authorization': `Bearer ${this.accessToken}` }
-          });
-          const json = await downloadRes.json();
+                  if (!this.isTokenValid()) {
+                    if (!silent) {
+                      alert('Google Drive non collegato o sessione scaduta. Clicca su "🔑 Collega Google Drive" nelle impostazioni.');
+                      this.showTab('settings');
+                    }
+                    return;
+                  }
 
-          this.libraryData = json;
-          await saveLibraryToIndexedDB(json);
+                  try {
+                    if (!silent) this.showToast('Sincronizzazione con Google Drive...');
 
-          this.renderLibrary();
-          this.renderFlashcards();
-          this.showToast('✅ Libreria sincronizzata!');
-        } catch (err) {
-          console.warn('Errore sincronizzazione:', err);
-          if (!silent) alert('Errore sincronizzazione Google Drive:\n' + err.message);
-        }
-      },
+                    // Trova outbox_study
+                    const syncFolderId = await this.findOrCreateFolder('FlowLocal_Sync');
+                    const outboxFolderId = await this.findOrCreateFolder('outbox_study', syncFolderId);
 
-      importManualJson: function (e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = async (ev) => {
-          try {
-            const data = JSON.parse(ev.target.result);
-            this.libraryData = data;
-            await saveLibraryToIndexedDB(data);
-            this.renderLibrary();
-            this.renderFlashcards();
-            this.showToast('Libreria importata con successo!');
-            this.showTab('library');
-          } catch (err) {
-            alert('File JSON non valido: ' + err.message);
-          }
-        };
-        reader.readAsText(file);
-      },
+                    // Cerca library.json
+                    const q = `name = 'library.json' and '${outboxFolderId}' in parents and trashed = false`;
+                    const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,modifiedTime)`, {
+                      headers: { 'Authorization': `Bearer ${this.accessToken}` }
+                    });
+                    const list = await res.json();
+                    if (!list.files || list.files.length === 0) {
+                      if (!silent) alert('Nessun file library.json trovato in FlowLocal_Sync/outbox_study. Clicca su "🔄 Aggiorna Cloud" nel PC per generarlo.');
+                      return;
+                    }
 
-      clearOfflineCache: async function () {
-        if (confirm('Vuoi svuotare tutti i dati salvati offline sul telefono?')) {
-          localStorage.removeItem('flowlocal_cached_library');
-          const db = await openOfflineDB();
-          const tx = db.transaction('library', 'readwrite');
-          tx.objectStore('library').clear();
-          this.libraryData = null;
-          this.renderLibrary();
-          this.renderFlashcards();
-          this.showToast('Cache svuotata.');
-        }
-      },
+                    const fileId = list.files[0].id;
+                    const downloadRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                      headers: { 'Authorization': `Bearer ${this.accessToken}` }
+                    });
+                    const json = await downloadRes.json();
 
-      // -----------------------------------------------------------------------
-      // RENDERING LIBRERIA & SBOBINE
-      // -----------------------------------------------------------------------
-      setLibraryProfileFilter: function (prof, btn) {
-        this.libFilterProfile = prof;
-        document.querySelectorAll('#profileFilterPills .fpill').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        this.renderLibrary();
-      },
+                    this.libraryData = json;
+                    await saveLibraryToIndexedDB(json);
 
-      setLibrarySubjectFilter: function (subj, btn) {
-        this.libFilterSubject = subj;
-        document.querySelectorAll('#subjectFilterPills .fpill').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        this.renderLibrary();
-      },
+                    this.renderLibrary();
+                    this.renderFlashcards();
+                    this.showToast('✅ Libreria sincronizzata!');
+                  } catch (err) {
+                    console.warn('Errore sincronizzazione:', err);
+                    if (!silent) alert('Errore sincronizzazione Google Drive:\n' + err.message);
+                  }
+                },
 
-      renderLibrary: function () {
-        const container = document.getElementById('libraryListContainer');
-        if (!container) return;
+                importManualJson: function (e) {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = async (ev) => {
+                    try {
+                      const data = JSON.parse(ev.target.result);
+                      this.libraryData = data;
+                      await saveLibraryToIndexedDB(data);
+                      this.renderLibrary();
+                      this.renderFlashcards();
+                      this.showToast('Libreria importata con successo!');
+                      this.showTab('library');
+                    } catch (err) {
+                      alert('File JSON non valido: ' + err.message);
+                    }
+                  };
+                  reader.readAsText(file);
+                },
 
-        if (!this.libraryData || !this.libraryData.notes || this.libraryData.notes.length === 0) {
-          container.innerHTML = `
+                clearOfflineCache: async function () {
+                  if (confirm('Vuoi svuotare tutti i dati salvati offline sul telefono?')) {
+                    localStorage.removeItem('flowlocal_cached_library');
+                    const db = await openOfflineDB();
+                    const tx = db.transaction('library', 'readwrite');
+                    tx.objectStore('library').clear();
+                    this.libraryData = null;
+                    this.renderLibrary();
+                    this.renderFlashcards();
+                    this.showToast('Cache svuotata.');
+                  }
+                },
+
+                // -----------------------------------------------------------------------
+                // RENDERING LIBRERIA & SBOBINE
+                // -----------------------------------------------------------------------
+                setLibraryProfileFilter: function (prof, btn) {
+                  this.libFilterProfile = prof;
+                  document.querySelectorAll('#profileFilterPills .fpill').forEach(b => b.classList.remove('active'));
+                  btn.classList.add('active');
+                  this.renderLibrary();
+                },
+
+                setLibrarySubjectFilter: function (subj, btn) {
+                  this.libFilterSubject = subj;
+                  document.querySelectorAll('#subjectFilterPills .fpill').forEach(b => b.classList.remove('active'));
+                  btn.classList.add('active');
+                  this.renderLibrary();
+                },
+
+                renderLibrary: function () {
+                  const container = document.getElementById('libraryListContainer');
+                  if (!container) return;
+
+                  if (!this.libraryData || !this.libraryData.notes || this.libraryData.notes.length === 0) {
+                    container.innerHTML = `
             <div class="empty-state">
               <div class="empty-state-icon">📖</div>
               <div style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin-bottom: 4px;">Nessuna Sbobina Trovata</div>
               <div style="font-size: 12.5px;">Sincronizza con Google Drive o carica una registrazione per iniziare.</div>
             </div>
           `;
-          return;
-        }
+                    return;
+                  }
 
-        // Popola i chip delle materie se non presenti
-        const subjPills = document.getElementById('subjectFilterPills');
-        if (subjPills && this.libraryData.subjects) {
-          let html = `<button class="fpill ${this.libFilterSubject === 'ALL' ? 'active' : ''}" onclick="app.setLibrarySubjectFilter('ALL', this)">Tutte le Materie</button>`;
-          this.libraryData.subjects.forEach(s => {
-            html += `<button class="fpill ${this.libFilterSubject === s ? 'active' : ''}" onclick="app.setLibrarySubjectFilter('${s}', this)">${s}</button>`;
-          });
-          subjPills.innerHTML = html;
-        }
+                  // Popola i chip delle materie se non presenti
+                  const subjPills = document.getElementById('subjectFilterPills');
+                  if (subjPills && this.libraryData.subjects) {
+                    let html = `<button class="fpill ${this.libFilterSubject === 'ALL' ? 'active' : ''}" onclick="app.setLibrarySubjectFilter('ALL', this)">Tutte le Materie</button>`;
+                    this.libraryData.subjects.forEach(s => {
+                      html += `<button class="fpill ${this.libFilterSubject === s ? 'active' : ''}" onclick="app.setLibrarySubjectFilter('${s}', this)">${s}</button>`;
+                    });
+                    subjPills.innerHTML = html;
+                  }
 
-        const query = (document.getElementById('librarySearchInput') ? document.getElementById('librarySearchInput').value.toLowerCase().trim() : '');
+                  const query = (document.getElementById('librarySearchInput') ? document.getElementById('librarySearchInput').value.toLowerCase().trim() : '');
 
-        const filtered = this.libraryData.notes.filter(n => {
-          if (this.libFilterProfile !== 'ALL' && n.profile !== this.libFilterProfile) return false;
-          if (this.libFilterSubject !== 'ALL' && n.subject !== this.libFilterSubject) return false;
-          if (query) {
-            const t = (n.title || '').toLowerCase();
-            const c = (n.content_markdown || '').toLowerCase();
-            const s = (n.subject || '').toLowerCase();
-            if (!t.includes(query) && !c.includes(query) && !s.includes(query)) return false;
-          }
-          return true;
-        });
+                  const filtered = this.libraryData.notes.filter(n => {
+                    if (this.libFilterProfile !== 'ALL' && n.profile !== this.libFilterProfile) return false;
+                    if (this.libFilterSubject !== 'ALL' && n.subject !== this.libFilterSubject) return false;
+                    if (query) {
+                      const t = (n.title || '').toLowerCase();
+                      const c = (n.content_markdown || '').toLowerCase();
+                      const s = (n.subject || '').toLowerCase();
+                      if (!t.includes(query) && !c.includes(query) && !s.includes(query)) return false;
+                    }
+                    return true;
+                  });
 
-        if (filtered.length === 0) {
-          container.innerHTML = `
+                  if (filtered.length === 0) {
+                    container.innerHTML = `
             <div class="empty-state">
               <div class="empty-state-icon">🔍</div>
               <div style="font-size: 14px; color: #FFFFFF;">Nessuna nota corrisponde ai filtri selezionati.</div>
             </div>
           `;
-          return;
-        }
+                    return;
+                  }
 
-        let cardsHtml = '';
-        filtered.forEach(note => {
-          const profClass = note.profile === 'Lei' ? 'badge-profile-lei' : 'badge-profile-alessandro';
-          const summaryPreview = note.summary ? note.summary : (note.content_markdown || '').slice(0, 140) + '...';
-          const dateStr = note.created_at ? note.created_at.slice(0, 10) : '';
+                  let cardsHtml = '';
+                  filtered.forEach(note => {
+                    const profClass = note.profile === 'Lei' ? 'badge-profile-lei' : 'badge-profile-alessandro';
+                    const summaryPreview = note.summary ? note.summary : (note.content_markdown || '').slice(0, 140) + '...';
+                    const dateStr = note.created_at ? note.created_at.slice(0, 10) : '';
 
-          cardsHtml += `
+                    cardsHtml += `
             <div class="note-card" onclick="app.openDetail(${note.id})">
               <div class="note-meta">
                 <div style="display: flex; gap: 5px;">
@@ -1761,123 +1761,123 @@
               <div class="note-preview">${summaryPreview}</div>
             </div>
           `;
-        });
+                  });
 
-        container.innerHTML = cardsHtml;
-      },
+                  container.innerHTML = cardsHtml;
+                },
 
-      openDetail: function (noteId) {
-        if (!this.libraryData || !this.libraryData.notes) return;
-        const note = this.libraryData.notes.find(n => n.id === noteId);
-        if (!note) return;
+                openDetail: function (noteId) {
+                  if (!this.libraryData || !this.libraryData.notes) return;
+                  const note = this.libraryData.notes.find(n => n.id === noteId);
+                  if (!note) return;
 
-        document.getElementById('detailTitle').textContent = note.title;
+                  document.getElementById('detailTitle').textContent = note.title;
 
-        const profClass = note.profile === 'Lei' ? 'badge-profile-lei' : 'badge-profile-alessandro';
-        document.getElementById('detailBadges').innerHTML = `
+                  const profClass = note.profile === 'Lei' ? 'badge-profile-lei' : 'badge-profile-alessandro';
+                  document.getElementById('detailBadges').innerHTML = `
           <span class="badge ${profClass}">${note.profile}</span>
           <span class="badge badge-subject">${note.subject}</span>
           <span class="badge" style="background: #1E293B; color: #94A3B8;">${note.created_at || ''}</span>
         `;
 
-        const sumBox = document.getElementById('detailSummary');
-        if (note.summary) {
-          sumBox.innerHTML = `<strong>💡 Sommario Esecutivo:</strong><br>${note.summary}`;
-          sumBox.style.display = 'block';
-        } else {
-          sumBox.style.display = 'none';
-        }
+                  const sumBox = document.getElementById('detailSummary');
+                  if (note.summary) {
+                    sumBox.innerHTML = `<strong>💡 Sommario Esecutivo:</strong><br>${note.summary}`;
+                    sumBox.style.display = 'block';
+                  } else {
+                    sumBox.style.display = 'none';
+                  }
 
-        // Render Markdown con evidenziazione badge audio non chiaro
-        let htmlBody = this.renderMarkdown(note.content_markdown || '');
-        document.getElementById('detailBody').innerHTML = htmlBody;
+                  // Render Markdown con evidenziazione badge audio non chiaro
+                  let htmlBody = this.renderMarkdown(note.content_markdown || '');
+                  document.getElementById('detailBody').innerHTML = htmlBody;
 
-        document.getElementById('detailOverlay').classList.add('active');
-      },
+                  document.getElementById('detailOverlay').classList.add('active');
+                },
 
-      closeDetail: function () {
-        document.getElementById('detailOverlay').classList.remove('active');
-      },
+                closeDetail: function () {
+                  document.getElementById('detailOverlay').classList.remove('active');
+                },
 
-      // Lightweight Markdown + LaTeX & Unclear Audio Highlighter
-      renderMarkdown: function (md) {
-        if (!md) return '';
-        let escaped = md
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;");
+                // Lightweight Markdown + LaTeX & Unclear Audio Highlighter
+                renderMarkdown: function (md) {
+                  if (!md) return '';
+                  let escaped = md
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
 
-        // Evidenziazione badge d'aula: [Audio non chiaro da MM:SS a MM:SS]
-        escaped = escaped.replace(/\[(?:AUDIO_NON_CHIARO|Audio non chiaro)[^\]]*\]/gi, (match) => {
-          return `<span class="unclear-audio-tag">⚠️ ${match.replace(/\[|\]/g, '')}</span>`;
-        });
+                  // Evidenziazione badge d'aula: [Audio non chiaro da MM:SS a MM:SS]
+                  escaped = escaped.replace(/\[(?:AUDIO_NON_CHIARO|Audio non chiaro)[^\]]*\]/gi, (match) => {
+                    return `<span class="unclear-audio-tag">⚠️ ${match.replace(/\[|\]/g, '')}</span>`;
+                  });
 
-        // Headers
-        escaped = escaped.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-        escaped = escaped.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-        escaped = escaped.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+                  // Headers
+                  escaped = escaped.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+                  escaped = escaped.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+                  escaped = escaped.replace(/^# (.*$)/gim, '<h1>$1</h1>');
 
-        // Bold & Italic
-        escaped = escaped.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
-        escaped = escaped.replace(/\*(.*?)\*/gim, '<em>$1</em>');
+                  // Bold & Italic
+                  escaped = escaped.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+                  escaped = escaped.replace(/\*(.*?)\*/gim, '<em>$1</em>');
 
-        // Inline Math LaTeX
-        escaped = escaped.replace(/\$([^\$]+)\$/g, '<code style="background: rgba(56, 189, 248, 0.15); color: #38BDF8; padding: 2px 5px; border-radius: 4px;">$1</code>');
+                  // Inline Math LaTeX
+                  escaped = escaped.replace(/\$([^\$]+)\$/g, '<code style="background: rgba(56, 189, 248, 0.15); color: #38BDF8; padding: 2px 5px; border-radius: 4px;">$1</code>');
 
-        // Paragrafi
-        escaped = escaped.split('\n\n').map(p => {
-          if (p.startsWith('<h') || p.startsWith('<span class="unclear')) return p;
-          return `<p>${p.replace(/\n/g, '<br>')}</p>`;
-        }).join('');
+                  // Paragrafi
+                  escaped = escaped.split('\n\n').map(p => {
+                    if (p.startsWith('<h') || p.startsWith('<span class="unclear')) return p;
+                    return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+                  }).join('');
 
-        return escaped;
-      },
+                  return escaped;
+                },
 
-      // -----------------------------------------------------------------------
-      // RENDERING FLASHCARD INTERATTIVE
-      // -----------------------------------------------------------------------
-      setFcProfileFilter: function (prof, btn) {
-        this.fcFilterProfile = prof;
-        document.querySelectorAll('#fcProfileFilterPills .fpill').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        this.currentFcIndex = 0;
-        this.renderFlashcards();
-      },
+                // -----------------------------------------------------------------------
+                // RENDERING FLASHCARD INTERATTIVE
+                // -----------------------------------------------------------------------
+                setFcProfileFilter: function (prof, btn) {
+                  this.fcFilterProfile = prof;
+                  document.querySelectorAll('#fcProfileFilterPills .fpill').forEach(b => b.classList.remove('active'));
+                  btn.classList.add('active');
+                  this.currentFcIndex = 0;
+                  this.renderFlashcards();
+                },
 
-      renderFlashcards: function () {
-        const container = document.getElementById('flashcardBoxContainer');
-        if (!container) return;
+                renderFlashcards: function () {
+                  const container = document.getElementById('flashcardBoxContainer');
+                  if (!container) return;
 
-        if (!this.libraryData || !this.libraryData.flashcards || this.libraryData.flashcards.length === 0) {
-          container.innerHTML = `
+                  if (!this.libraryData || !this.libraryData.flashcards || this.libraryData.flashcards.length === 0) {
+                    container.innerHTML = `
             <div class="empty-state">
               <div class="empty-state-icon">🧠</div>
               <div style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin-bottom: 4px;">Nessuna Flashcard Disponibile</div>
               <div style="font-size: 12.5px;">Estrai le flashcard dalle lezioni sul PC e aggiorna la libreria.</div>
             </div>
           `;
-          return;
-        }
+                    return;
+                  }
 
-        this.activeFlashcards = this.libraryData.flashcards.filter(fc => {
-          if (this.fcFilterProfile !== 'ALL' && fc.profile !== this.fcFilterProfile) return false;
-          return true;
-        });
+                  this.activeFlashcards = this.libraryData.flashcards.filter(fc => {
+                    if (this.fcFilterProfile !== 'ALL' && fc.profile !== this.fcFilterProfile) return false;
+                    return true;
+                  });
 
-        if (this.activeFlashcards.length === 0) {
-          container.innerHTML = `
+                  if (this.activeFlashcards.length === 0) {
+                    container.innerHTML = `
             <div class="empty-state">
               <div style="font-size: 14px; color: #FFFFFF;">Nessuna flashcard per questo profilo.</div>
             </div>
           `;
-          return;
-        }
+                    return;
+                  }
 
-        if (this.currentFcIndex >= this.activeFlashcards.length) this.currentFcIndex = 0;
-        const current = this.activeFlashcards[this.currentFcIndex];
-        const total = this.activeFlashcards.length;
+                  if (this.currentFcIndex >= this.activeFlashcards.length) this.currentFcIndex = 0;
+                  const current = this.activeFlashcards[this.currentFcIndex];
+                  const total = this.activeFlashcards.length;
 
-        container.innerHTML = `
+                  container.innerHTML = `
           <div id="activeFcBox" class="fc-box" onclick="this.classList.toggle('flipped')">
             <div class="fc-indicator">${current.subject} • Card ${this.currentFcIndex + 1} di ${total}</div>
             <div class="fc-question">${current.question}</div>
@@ -1891,33 +1891,33 @@
             <button class="btn btn-primary" style="width: auto; padding: 9px 18px;" onclick="app.nextFlashcard()">Prossima ➔</button>
           </div>
         `;
-      },
+                },
 
-      nextFlashcard: function () {
-        if (this.activeFlashcards.length === 0) return;
-        this.currentFcIndex = (this.currentFcIndex + 1) % this.activeFlashcards.length;
-        this.renderFlashcards();
-      },
+                nextFlashcard: function () {
+                  if (this.activeFlashcards.length === 0) return;
+                  this.currentFcIndex = (this.currentFcIndex + 1) % this.activeFlashcards.length;
+                  this.renderFlashcards();
+                },
 
-      prevFlashcard: function () {
-        if (this.activeFlashcards.length === 0) return;
-        this.currentFcIndex = (this.currentFcIndex - 1 + this.activeFlashcards.length) % this.activeFlashcards.length;
-        this.renderFlashcards();
-      },
+                prevFlashcard: function () {
+                  if (this.activeFlashcards.length === 0) return;
+                  this.currentFcIndex = (this.currentFcIndex - 1 + this.activeFlashcards.length) % this.activeFlashcards.length;
+                  this.renderFlashcards();
+                },
 
-      shuffleFlashcards: function () {
-        if (this.activeFlashcards.length <= 1) return;
-        for (let i = this.activeFlashcards.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [this.activeFlashcards[i], this.activeFlashcards[j]] = [this.activeFlashcards[j], this.activeFlashcards[i]];
-        }
-        this.currentFcIndex = 0;
-        this.renderFlashcards();
-        this.showToast('🔀 Flashcard rimescolate!');
-      }
-    };
+                shuffleFlashcards: function () {
+                  if (this.activeFlashcards.length <= 1) return;
+                  for (let i = this.activeFlashcards.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [this.activeFlashcards[i], this.activeFlashcards[j]] = [this.activeFlashcards[j], this.activeFlashcards[i]];
+                  }
+                  this.currentFcIndex = 0;
+                  this.renderFlashcards();
+                  this.showToast('🔀 Flashcard rimescolate!');
+                }
+              };
 
-    window.addEventListener('DOMContentLoaded', () => app.init());
+              window.addEventListener('DOMContentLoaded', () => app.init());
   </script>
 </body>
 
